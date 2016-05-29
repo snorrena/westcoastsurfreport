@@ -190,7 +190,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     String numericlastsavedrecordtime = "";
 
                     if (recordssaved > 0) {//check if there are previous records saved in app prefs
-
+//this is the test version
                         List<String> x = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
                         //returns an array data list of the last saved record
                         lastsavedrecordtime = x.get(1);
