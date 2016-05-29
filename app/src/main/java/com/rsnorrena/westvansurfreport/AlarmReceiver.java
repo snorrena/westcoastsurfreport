@@ -34,6 +34,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     Context context;//not used
     List<RssData> rssdatalist;//data array object
+    List<String> tinyDBSavedData;
 
     //class object and variable declarations
     TinyDB tinydb;
@@ -114,8 +115,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             if (result[0] != null && result[1] != null) {//don't do anything if the http call returns nothing
                 tinydb = new TinyDB (PassedContext);
-                int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
+//                int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
 
+                tinyDBSavedData = tinydb.getList("tinyDBSavedData");
+                int recordssaved = tinyDBSavedData.size();
 
                 rssdatalist = RssXMLParser.parseFeed(result);
                 //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
@@ -186,13 +189,12 @@ public class AlarmReceiver extends BroadcastReceiver {
                     }
 
 
-                    String lastsavedrecordtime = "";
+                    String lastsavedrecordtime;
                     String numericlastsavedrecordtime = "";
 
                     if (recordssaved > 0) {//check if there are previous records saved in app prefs
 
                         List<String> x = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
-                        //returns an array data list of the last saved record
                         lastsavedrecordtime = x.get(1);
                         //returns the second element (time stamp) in the last saved record
                         numericlastsavedrecordtime = lastsavedrecordtime.replaceAll("[^0-9.:]", "");
