@@ -25,32 +25,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class AlarmReceiver extends BroadcastReceiver {
 
-    private static final String TAG = AlarmReceiver.class.getSimpleName();//not used
+    private static final String TAG = AlarmReceiver.class.getSimpleName();
 
-
-
-
-    Context context;//not used
-    List<RssData> rssdatalist;//data array object
+    RssData[] rssdatalist = new RssData[2];//data array object
 
     //class object and variable declarations
     TinyDB tinydb;
-    boolean newdataretrieved, alarmtriggered;
     String surfreport =  "";
 
     //field variables to hold the important data
     String date;
-    String time;
+    String time, oldTime;
     String winddirection;
     String windspeed;
     String waveheight;
     String waveinterval;
     String winddirectiondegrees;
     String recordCreated;
-    Date oldDate, newDate;
-    Boolean newfeeddatarecord;
 
     //two xml data sources used in the app for wind forecast and Halibut Bank live data.
     String[] datasource = {"http://www.ndbc.noaa.gov/data/latest_obs/46146.rss","https://weather.gc.ca/rss/marine/14300_e.xml"};
@@ -99,44 +94,39 @@ public class AlarmReceiver extends BroadcastReceiver {
         protected String[] doInBackground(String... params) {//method receives a string array containing the two uri sources
             //then returns a string array with two data items consisting of the two xml files downloaded from the internet
             String[] content = new String[2];//this array hold the two xml files
-            for (int i = 0; i < 2; i++) {//loop to pass in each of the two uri's under params
-                //and save the returned xml data files into the content string array.
 
-            content[i] = HttpManager.getData(params[i]);//call the the getData method in the HttpManager class
-            }
+                for (int i = 0; i < content.length; i++) {//loop to pass in each of the two uri's under params
+                    //and save the returned xml data files into the content string array.
+                HttpManager httpManager = new HttpManager();
+                content[i] = httpManager.getData(params[i], i);//call the the getData method in the HttpManager class
+
+                }
+
             return content;//sent the content array to the post execute method
         }
 
         @Override
         protected void onPostExecute(String[] result) {
-            oldDate = new Date(24L*60L*60L*1000L);
 
+            //only run code to update info when a new file is received from the Halibut Bank Buoy.
+            if (!result[0].equals("")) {
 
-            if (result[0] != null && result[1] != null) {//don't do anything if the http call returns nothing
                 tinydb = new TinyDB (PassedContext);
                 int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
 
-
-                rssdatalist = RssXMLParser.parseFeed(result);
                 //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
                 //result = content String array passed from the doinbackground method
                 //the rssdatalist is an array list of two data objs containing in the info parsed from the downloaded xml files
+                rssdatalist = RssXMLParser.parseFeed(result);
 
-                RssData rssdata = null;//halibut bank date object
-                RssData rssdata_windwarning = null;//windwarning data object
-
-                    int size = 0;
-                try {
-                    size = rssdatalist.size();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                //update the wind report if the parser returns something other than null.
+                if (rssdatalist[1] == null) {
+                    Log.d(TAG, "The wind warning report file is null");
                 }
+                else
+                {
 
-                if (size > 0) {
-
-                    rssdata = rssdatalist.get(0);//data obj containing information from the Halibut bank xml file.
-                    rssdata_windwarning = rssdatalist.get(1);//data obj containing wind warning info from envir Canada
-
+                    RssData rssdata_windwarning = rssdatalist[1];//data obj containing wind warning info from envir Canada
 
                     //code to extract and save the wind warning data
                     String title1 = rssdata_windwarning.getTitle1();
@@ -154,94 +144,80 @@ public class AlarmReceiver extends BroadcastReceiver {
                     windwarningdata.add(summary2);
 
                     tinydb.putList("windforecast", windwarningdata);//the wind warning info is saved in app prefs
+                }
 
-
-                    //code to extract and save the halibut bank data
-                    date = rssdata.getDate();
+                //update the Halibut Bank data if the parser returns something other than null.
+                if (rssdatalist[0] == null) {
+                    Log.d(TAG, "The Halibut Bank report file is null");
+                }else {
+                    int newH, oldH;
+                    boolean nextHour = false;
+                    RssData rssdata = rssdatalist[0];//data obj containing information from the Halibut bank xml file.
                     time = rssdata.getTime();
-                    winddirection = rssdata.getWind_direction();
-                    windspeed = rssdata.getWind_speed();
-                    waveheight = rssdata.getWave_height();
-                    waveinterval = rssdata.getWave_interval();
-                    recordCreated = rssdata.getRecordTime();
-                    winddirectiondegrees = (winddirection.replaceAll("[^0-9]", ""));
 
-                    //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
-                    ArrayList<String> currentdatafeed = new ArrayList<String>();
-                    ArrayList<String> itemstoadd = new ArrayList<String>();
-                    itemstoadd.add(date);
-                    itemstoadd.add(time);
-                    itemstoadd.add(winddirection);
-                    itemstoadd.add(windspeed);
-                    itemstoadd.add(waveheight);
-                    itemstoadd.add(waveinterval);
-                    itemstoadd.add(winddirectiondegrees);
-                    itemstoadd.add(recordCreated);
-                    currentdatafeed.addAll(itemstoadd);
-                    System.out.println("currentdatafeed size = " + currentdatafeed.size());
-                    int index = 0;
-                    for(String item:itemstoadd){
-                        System.out.println(index + " " + item);
-                        index++;
+                    //The oldTime will not exist on first run.
+                    try {
+                        List<String> lastRecordTime = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
+                        oldTime = lastRecordTime.get(1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        oldTime = "not set";
+                        nextHour = true;
                     }
 
+System.out.println("Old time = " + oldTime);
+System.out.println("New time = " + time);
 
-                    String lastsavedrecordtime = "";
-                    String numericlastsavedrecordtime = "";
+                    if (!nextHour) {
+                        String[] oldHour = oldTime.split(":");
+                        oldH = Integer.parseInt(oldHour[0]);
+                        String[] newHour = time.split(":");
+                        newH = Integer.parseInt(newHour[0]);
 
-                    if (recordssaved > 0) {//check if there are previous records saved in app prefs
-//this is the test version
-                        List<String> x = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
-                        //returns an array data list of the last saved record
-                        lastsavedrecordtime = x.get(1);
-                        //returns the second element (time stamp) in the last saved record
-                        numericlastsavedrecordtime = lastsavedrecordtime.replaceAll("[^0-9.:]", "");
-                        //cleans the data of all but the numeric data
-                        String lastSavedRecordTimeStamp = x.get(7);
-
-                        oldDate = new Date(Long.parseLong(lastSavedRecordTimeStamp));
-
-                    }
-
-                    String currentFeedRecordTimeStamp = currentdatafeed.get(7);
-                    newDate = new Date(Long.parseLong((currentFeedRecordTimeStamp)));
-                    System.out.println("The new date is: " + newDate);
-                    System.out.println("The old date is: " + oldDate);
-
-                    String y = currentdatafeed.get(1);//returns the time stanp in the currentdatafeed
-                    String numericcurrentfeedrecordtime = y.replaceAll("[^0-9.:]", "");
-                    //returns the time stamp of the current data feed file in numerics
-
-
-                    //check on the time stamps between the currentdatafeed and the last saved record
-                    //to determine if a newfeeddatarecord
-                    if (newDate.after(oldDate)) {
-                        if (numericlastsavedrecordtime.equals(numericcurrentfeedrecordtime)) {
-                            newfeeddatarecord = false;
-                        } else {
-                            newfeeddatarecord = true;
+                        if (oldH == 23 && newH == 0){
+                            nextHour = true;
+                        }else if(newH > oldH){
+                            nextHour = true;
                         }
                     }
-                    System.out.println("Last record time: " + numericlastsavedrecordtime );
-                    System.out.println("Current record time: " + numericcurrentfeedrecordtime);
-                    System.out.println("The new record boolean is: " + newfeeddatarecord);
 
-                    //code the add the file to the database if it is new
-                    if (newfeeddatarecord) {
+                    //Only add the record if the time stamp is new.
+                    if (nextHour) {
+
+                        //code to extract and save the halibut bank data
+                        date = rssdata.getDate();
+                        winddirection = rssdata.getWind_direction();
+                        windspeed = rssdata.getWind_speed();
+                        waveheight = rssdata.getWave_height();
+                        waveinterval = rssdata.getWave_interval();
+                        recordCreated = rssdata.getRecordTime();
+                        winddirectiondegrees = (winddirection.replaceAll("[^0-9]", ""));
+
+                        //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
+                        ArrayList<String> currentdatafeed = new ArrayList<String>();
+                        ArrayList<String> itemstoadd = new ArrayList<String>();
+                        itemstoadd.add(date);
+                        itemstoadd.add(time);
+                        itemstoadd.add(winddirection);
+                        itemstoadd.add(windspeed);
+                        itemstoadd.add(waveheight);
+                        itemstoadd.add(waveinterval);
+                        itemstoadd.add(winddirectiondegrees);
+                        itemstoadd.add(recordCreated);
+                        currentdatafeed.addAll(itemstoadd);
+                        System.out.println("currentdatafeed size = " + currentdatafeed.size());
+                        int index = 0;
+                        for (String item : itemstoadd) {
+                            System.out.println(index + " " + item);
+                            index++;
+                        }
 
                         recordssaved = recordssaved + 1;
                         tinydb.putInt("recordssaved", recordssaved);
                         Log.d(TAG, "NewRecordadded");
-
-//                        newdataretrieved = true;
-
-                        String saveddatarecord = "0";
+                        String saveddatarecord = "";
 
                         ArrayList<String> retaineddatarecord = new ArrayList<String>();
-
-                        for (int i = 0; i < 6; i++) {
-                            retaineddatarecord.add(i, saveddatarecord);
-                        }
 
                         if (recordssaved == 1) {//set the key values based on the number of records saved
                             saveddatarecord = "saveddatarecord1";
@@ -259,7 +235,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         } else if (recordssaved > 6) {//code the execute if there are already six records in the database
                             saveddatarecord = "saveddatarecord6";
 
-//code the shuffle the saved data down if there are already six files in the database
+                            //code the shuffle the saved data down if there are already six files in the database
                             retaineddatarecord = tinydb.getList("saveddatarecord2");
                             tinydb.putList("saveddatarecord1", retaineddatarecord);
                             retaineddatarecord = tinydb.getList("saveddatarecord3");
@@ -277,7 +253,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                         //saves the currentdatafeed into app prefs using the key value assigned to saveddatarecord
                         tinydb.putList(saveddatarecord, currentdatafeed);
 
-
                         //execute code to check the saved surf condition data and assign a %surfscore value and save to the database
                         SurfConditionsCheck SurfCheck = new SurfConditionsCheck();
                         SurfCheck.SurfScore(PassedContext);
@@ -286,10 +261,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         int surfgradealarm = tinydb.getInt("surfgradealarm");
                         boolean sendtextmessage = tinydb.getBoolean("sendtextmessage");
                         boolean alarmtriggered = tinydb.getBoolean("alarmtriggered");
-                        boolean alarmset = tinydb.getBoolean("alarmset");
 
                         //Sound of alarm if conditions met
-                        if (!alarmtriggered && surfgrade >= surfgradealarm){
+                        if (!alarmtriggered && surfgrade >= surfgradealarm) {
                             SoundAlarm soundAlarm = new SoundAlarm();
                             soundAlarm.soundAlarmOn();
                         }
@@ -304,32 +278,20 @@ public class AlarmReceiver extends BroadcastReceiver {
                             sndmsg.sendEmailMessage();
                         }
 
+
+                        currentdatafeed.clear();
+                        //reset the boolean if a new data record is added
+                        tinydb.putBoolean("newrecordadded", true);
                     }
-                    currentdatafeed.clear();
-                    //reset the boolean if a new data record is added
-                    tinydb.putBoolean("newrecordadded", newfeeddatarecord);
-
                 }
-
             }
-
-
         }
-
-
-
 
         @Override
         protected void onProgressUpdate(String... values) {
 
         }
-
-
     }
-
-
-
-
 }
 
 

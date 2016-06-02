@@ -2,7 +2,10 @@ package com.rsnorrena.westvansurfreport.parsers;
 
 import android.os.SystemClock;
 import android.text.format.Time;
+import android.util.Log;
 
+import com.rsnorrena.westvansurfreport.MainActivity;
+import com.rsnorrena.westvansurfreport.TinyDB;
 import com.rsnorrena.westvansurfreport.model.RssData;
 
 import org.jsoup.Jsoup;
@@ -19,31 +22,30 @@ import java.util.List;
  * Created by Admin on 3/30/2015.
  */
 public class RssXMLParser {
+    private static final String TAG = RssXMLParser.class.getSimpleName();
 
-
-
-    public static List<RssData> parseFeed(String[] content) {
+    public static RssData[] parseFeed(String[] content) {
         //method receives the string value of the xml file(s) in the String array "content"
-        // and returns the list array "Rssata".
-
+        // and returns the array "Rssata".
+        TinyDB tinyDB = new TinyDB(MainActivity.context);
 
         RssData rssdata = null;
         //instance of the data object class for the current data object
 
 
 
-        List<RssData> rssdatalist = new ArrayList<>();
+        RssData[] rssdatalist = new RssData[2];
         //the rssdatalist will hold all data in a format defined in the RssData class
 
-        for (int i = 0; i < 2; i++) {//loop twice for array index 0 & 1 for the two xml files passed into the parser
+        for (int i = 0; i < content.length; i++) {//loop twice for array index 0 & 1 for the two xml files passed into the parser
 
             boolean inDataItemTag = false;
             //used to determine if we care about the current data item
             String currentTagName = "";
-            //whick tag we are currently in..
+            //which tag we are currently in..
 
             if (i == 0){//condition to check the first file for the Halibut Bank data
-
+Log.d(TAG, "Downloading the Halibut Bank data file");
                 try {//the parsing code is surrounded in the try catch
                     //creates the object the parse the xml files contained in the array
                     XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -68,7 +70,7 @@ public class RssXMLParser {
 
                                         inDataItemTag = true;
                                         rssdata = new RssData();//creats the obj to hold the data
-                                        rssdatalist.add(rssdata);//the data container is then added to the array list
+                                        rssdatalist[0] = rssdata;//the data container is then added to the array list
                                     }
 
 
@@ -118,20 +120,11 @@ public class RssXMLParser {
                                                 time = h + ":00 pm";
                                             }
                                             rssdata.setTime(time);
-
-//                                    Calendar cal = Calendar.getInstance();
-//                                    cal.getTime();
-//                                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-//                                    String currenttime = sdf.format(cal.getTime());
-//                                    rssdata.setTime(currenttime);
-
-                                            String recordCreated = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                                            rssdata.setRecordTime(recordCreated);
-
                                             rssdata.setWind_direction(winddirection);
                                             rssdata.setWind_speed(windspeed);
                                             rssdata.setWave_height(waveheight);
                                             rssdata.setWave_interval(waveinterval);
+                                            rssdata.setRecordTime(tinyDB.getString("fileTimeStamp"));
                                             //the token items of interest are then saved into the data object.
 
                                             //rssdata.setDescription(parser.getText());
@@ -155,8 +148,10 @@ public class RssXMLParser {
                     return null;
                 }
 
-            }else{
+            }
 
+            if (i == 1 && !content[i].equals("")){
+Log.d(TAG, "Downloading the wind warning data file");
                 //code for parsing the windwarding data
                 //data to be collected from xml - title fields 1-3 and summary fields 1 & 2.
                 try {
@@ -172,7 +167,7 @@ public class RssXMLParser {
                     int summaryfiedcount = 0;
 
                     rssdata = new RssData();// we only need one data object for the the wind warning info
-                    rssdatalist.add(rssdata);
+                    rssdatalist[1] = rssdata;
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {//loop through the whole file until the end tag
 
@@ -265,10 +260,11 @@ public class RssXMLParser {
                     return null;
                 }
 
+            }else{
+                rssdatalist[1] = null;
             }
 
         }
-
                     return rssdatalist;
     }
     public static String html2text(String html){

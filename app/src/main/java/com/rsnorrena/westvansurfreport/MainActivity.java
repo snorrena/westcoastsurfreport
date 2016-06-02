@@ -466,8 +466,6 @@ public class MainActivity extends Activity{
         WindWarningCheck();
         ToggleButtonReset();
 
-//        recordssaved = tinydb.getInt("recordssaved");
-
 //clear of all text fields. Not sure why typeface is reset to normal
         tvd1.setText("");
         tvd1.setTypeface(null, Typeface.NORMAL);
