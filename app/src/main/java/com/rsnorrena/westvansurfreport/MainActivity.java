@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.*;
@@ -168,6 +169,7 @@ public class MainActivity extends Activity{
                                                              tinydb.remove("saveddatarecord5");
                                                              tinydb.remove("saveddatarecord6");
                                                              tinydb.remove("alarmtriggered");
+                                                             tinydb.remove("lastRecordSavedDateAndTime");
 
                                                              updateDisplay();//custom method to update the displayARM_SERVICE);
 
@@ -463,14 +465,22 @@ public class MainActivity extends Activity{
     }
 
     public void updateDisplay() {
+
         Log.d(TAG, "update display called");
 
-        //retrieve the date time of the last saved record and compare to current time.
-        Long dateInLong = tinydb.getLong("lastRecordSavedDateAndTime");
-        Date lastRecordSavedDate = new Date(dateInLong);
+        Date currentDateAndTime = new Date(System.currentTimeMillis());
 
-        Calendar cal = Calendar.getInstance();
-        Date currentDateAndTime = cal.getTime();
+        //retrieve the date time of the last saved record and compare to current time.
+        Date lastRecordSavedDate = null;
+        try {
+            Long dateInLong = tinydb.getLong("lastRecordSavedDateAndTime");
+            lastRecordSavedDate = new Date(dateInLong);
+            Log.d(TAG, "Last record saved date: " + lastRecordSavedDate.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "No calendar records saved as of yet");
+            lastRecordSavedDate = currentDateAndTime;
+        }
 
         long diffInMillies = currentDateAndTime.getTime() - lastRecordSavedDate.getTime();
         long hourDiff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
@@ -487,6 +497,7 @@ public class MainActivity extends Activity{
             tinydb.remove("saveddatarecord5");
             tinydb.remove("saveddatarecord6");
             tinydb.remove("alarmtriggered");
+            tinydb.remove("lastRecordSavedDateAndTime");
         }
 
         SurfPotentialPercentage();

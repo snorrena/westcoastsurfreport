@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static java.lang.Thread.sleep;
 
@@ -181,14 +182,7 @@ System.out.println("New time = " + time);
                     //Only add the record if the time stamp is new.
                     if (nextHour) {
 
-
-                        Calendar cal = Calendar.getInstance();
-                        cal.set(Calendar.HOUR_OF_DAY,newH);
-                        cal.set(Calendar.MINUTE,0);
-                        cal.set(Calendar.SECOND,0);
-                        cal.set(Calendar.MILLISECOND,0);
-
-                        Date d = cal.getTime();
+                        Date d = new Date(System.currentTimeMillis());
                         Long dateInLong = d.getTime();
 
                         tinydb.putLong("lastRecordSavedDateAndTime", dateInLong);
