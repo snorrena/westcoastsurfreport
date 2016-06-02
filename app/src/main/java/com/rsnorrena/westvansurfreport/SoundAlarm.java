@@ -16,8 +16,8 @@ public class SoundAlarm implements TextToSpeech.OnInitListener{
 
     private static final String TAG = SoundAlarm.class.getSimpleName();
     private TinyDB tinydb;
-    private static MediaPlayer mp;
-    private static TextToSpeech tts;
+    private MediaPlayer mp;
+    private TextToSpeech tts;
     private Context context;
 
 
