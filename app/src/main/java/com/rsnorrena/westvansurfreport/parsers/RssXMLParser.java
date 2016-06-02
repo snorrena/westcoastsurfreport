@@ -22,6 +22,7 @@ import java.util.List;
  * Created by Admin on 3/30/2015.
  */
 public class RssXMLParser {
+
     private static final String TAG = RssXMLParser.class.getSimpleName();
 
     public static RssData[] parseFeed(String[] content) {
@@ -119,18 +120,12 @@ Log.d(TAG, "Downloading the Halibut Bank data file");
                                                 h = h + 12;
                                                 time = h + ":00 pm";
                                             }
+                                            //the token items of interest are then saved into the data object.
                                             rssdata.setTime(time);
                                             rssdata.setWind_direction(winddirection);
                                             rssdata.setWind_speed(windspeed);
                                             rssdata.setWave_height(waveheight);
                                             rssdata.setWave_interval(waveinterval);
-                                            rssdata.setRecordTime(tinyDB.getString("fileTimeStamp"));
-                                            //the token items of interest are then saved into the data object.
-
-                                            //rssdata.setDescription(parser.getText());
-                                            //strip file of html then split into tokens and save into the data object
-
-
 
                                         default:
                                             break;
@@ -145,12 +140,11 @@ Log.d(TAG, "Downloading the Halibut Bank data file");
                     descriptionfieldcount = 0;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return null;
+                    rssdatalist[0] = null;
                 }
-
             }
 
-            if (i == 1 && !content[i].equals("")){
+            if (i == 1){
 Log.d(TAG, "Downloading the wind warning data file");
                 //code for parsing the windwarding data
                 //data to be collected from xml - title fields 1-3 and summary fields 1 & 2.
@@ -257,17 +251,14 @@ Log.d(TAG, "Downloading the wind warning data file");
                     titlefieldcount = 0;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return null;
+                    rssdatalist[1] = null;
                 }
-
-            }else{
-                rssdatalist[1] = null;
             }
-
         }
                     return rssdatalist;
     }
+    //method call to jsoup to strip out html tags and return plain text
     public static String html2text(String html){
         return Jsoup.parse(html).text();
-    }//method call to jsoup to strip out html tags and return plain text
+    }
 }

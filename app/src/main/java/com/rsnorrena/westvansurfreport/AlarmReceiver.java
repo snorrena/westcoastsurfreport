@@ -45,7 +45,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     String waveheight;
     String waveinterval;
     String winddirectiondegrees;
-    String recordCreated;
 
     //two xml data sources used in the app for wind forecast and Halibut Bank live data.
     String[] datasource = {"http://www.ndbc.noaa.gov/data/latest_obs/46146.rss","https://weather.gc.ca/rss/marine/14300_e.xml"};
@@ -97,9 +96,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 for (int i = 0; i < content.length; i++) {//loop to pass in each of the two uri's under params
                     //and save the returned xml data files into the content string array.
-                HttpManager httpManager = new HttpManager();
-                content[i] = httpManager.getData(params[i], i);//call the the getData method in the HttpManager class
-
+                content[i] = HttpManager.getData(params[i]);//call the the getData method in the HttpManager class
                 }
 
             return content;//sent the content array to the post execute method
@@ -190,7 +187,6 @@ System.out.println("New time = " + time);
                         windspeed = rssdata.getWind_speed();
                         waveheight = rssdata.getWave_height();
                         waveinterval = rssdata.getWave_interval();
-                        recordCreated = rssdata.getRecordTime();
                         winddirectiondegrees = (winddirection.replaceAll("[^0-9]", ""));
 
                         //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
@@ -203,7 +199,6 @@ System.out.println("New time = " + time);
                         itemstoadd.add(waveheight);
                         itemstoadd.add(waveinterval);
                         itemstoadd.add(winddirectiondegrees);
-                        itemstoadd.add(recordCreated);
                         currentdatafeed.addAll(itemstoadd);
                         System.out.println("currentdatafeed size = " + currentdatafeed.size());
                         int index = 0;
@@ -254,8 +249,7 @@ System.out.println("New time = " + time);
                         tinydb.putList(saveddatarecord, currentdatafeed);
 
                         //execute code to check the saved surf condition data and assign a %surfscore value and save to the database
-                        SurfConditionsCheck SurfCheck = new SurfConditionsCheck();
-                        SurfCheck.SurfScore(PassedContext);
+                        SurfConditionsCheck.SurfScore();
 
                         int surfgrade = tinydb.getInt("surfgrade");
                         int surfgradealarm = tinydb.getInt("surfgradealarm");

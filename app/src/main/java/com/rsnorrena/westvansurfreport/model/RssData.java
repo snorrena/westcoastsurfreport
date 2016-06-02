@@ -20,15 +20,7 @@ public class RssData {
     private String title3;
     private String summary1;
     private String summary2;
-    private String recordTime;
 
-    public String getRecordTime() {
-        return recordTime;
-    }
-
-    public void setRecordTime(String recordTime) {
-        this.recordTime = recordTime;
-    }
 
     public String getSummary1() {
         return summary1;

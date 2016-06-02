@@ -10,7 +10,7 @@ import java.util.List;
 public class SurfConditionsCheck {
 
 
-    public static void SurfScore(Context applicationContext) {
+    public static void SurfScore() {
 
         int surfgrade = 0;
 
@@ -21,7 +21,7 @@ public class SurfConditionsCheck {
         float threehouronemeterwaveheight = 0;
         float threehourtwentyknotwinds = 0;
 
-        TinyDB tinydb = new TinyDB(applicationContext);
+        TinyDB tinydb = new TinyDB(MainActivity.context);
         recordssaved = tinydb.getInt("recordssaved");
 
 
