@@ -147,7 +147,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 if (rssdatalist[0] == null) {
                     Log.d(TAG, "The Halibut Bank report file is null");
                 }else {
-                    int newH, oldH;
+                    int newH = 0, oldH;
                     boolean nextHour = false;
                     RssData rssdata = rssdatalist[0];//data obj containing information from the Halibut bank xml file.
                     time = rssdata.getTime();
@@ -180,6 +180,18 @@ System.out.println("New time = " + time);
 
                     //Only add the record if the time stamp is new.
                     if (nextHour) {
+
+
+                        Calendar cal = Calendar.getInstance();
+                        cal.set(Calendar.HOUR_OF_DAY,newH);
+                        cal.set(Calendar.MINUTE,0);
+                        cal.set(Calendar.SECOND,0);
+                        cal.set(Calendar.MILLISECOND,0);
+
+                        Date d = cal.getTime();
+                        Long dateInLong = d.getTime();
+
+                        tinydb.putLong("lastRecordSavedDateAndTime", dateInLong);
 
                         //code to extract and save the halibut bank data
                         date = rssdata.getDate();

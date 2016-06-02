@@ -25,10 +25,12 @@ import android.widget.ToggleButton;
 
 import com.rsnorrena.westvansurfreport.model.RssData;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -462,6 +464,31 @@ public class MainActivity extends Activity{
 
     public void updateDisplay() {
         Log.d(TAG, "update display called");
+
+        //retrieve the date time of the last saved record and compare to current time.
+        Long dateInLong = tinydb.getLong("lastRecordSavedDateAndTime");
+        Date lastRecordSavedDate = new Date(dateInLong);
+
+        Calendar cal = Calendar.getInstance();
+        Date currentDateAndTime = cal.getTime();
+
+        long diffInMillies = currentDateAndTime.getTime() - lastRecordSavedDate.getTime();
+        long hourDiff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
+        Log.d(TAG, "Time span between records: " + hourDiff + " hours");
+        //if the time span between the last saved record and the current time is greater than 2 hours reset all data.
+        if(hourDiff > 2){
+            tinydb.remove("windforecast");
+            tinydb.putInt("surfgrade", 0);
+            tinydb.putInt("recordssaved", 0);
+            tinydb.remove("saveddatarecord1");
+            tinydb.remove("saveddatarecord2");
+            tinydb.remove("saveddatarecord3");
+            tinydb.remove("saveddatarecord4");
+            tinydb.remove("saveddatarecord5");
+            tinydb.remove("saveddatarecord6");
+            tinydb.remove("alarmtriggered");
+        }
+
         SurfPotentialPercentage();
         WindWarningCheck();
         ToggleButtonReset();
