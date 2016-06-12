@@ -5,7 +5,7 @@
     <string name="clear_data">Clear data</string>
     <string name="alarm_on">ALARM ON</string>
     <string name="alarm_off">ALARM OFF</string>
-    <string name="westvansurf"><u>West Vancouver Surf Report</u></string>
+    <string name="westvansurf">West Vancouver Surf Report</string>
     <string name="provider_prompt">Choose a cell provider</string>
     <string name="application_settings"><u>Application Settings</u></string>
     <string name="surfgrade"><u>Weighted Surf Grade</u></string>

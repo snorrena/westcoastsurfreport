@@ -106,16 +106,30 @@ public class AlarmReceiver extends BroadcastReceiver {
         @Override
         protected void onPostExecute(String[] result) {
 
-            //only run code to update info when a new file is received from the Halibut Bank Buoy.
-            if (!result[0].equals("")) {
+            //the HttpManager will return a null string if the download fails.
+            //only run code to update info when at lease one new file is received - Halibut Bank or Weather report.
+            if (result[0] != null || result[1] != null) {
 
                 tinydb = new TinyDB (PassedContext);
                 int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
 
                 //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
                 //result = content String array passed from the doinbackground method
-                //the rssdatalist is an array list of two data objs containing in the info parsed from the downloaded xml files
-                rssdatalist = RssXMLParser.parseFeed(result);
+
+                RssData halibutBankData = RssXMLParser.parseFeed(result, 0);
+                RssData windData = RssXMLParser.parseFeed(result, 1);
+
+                //add some sort of data check in here to validate the files to be saved in memory.
+
+                rssdatalist[0] = halibutBankData;
+                rssdatalist[1] = windData;
+
+                for(RssData datalist:rssdatalist){
+
+                    System.out.println(datalist.toString());
+
+                }
+
 
                 //update the wind report if the parser returns something other than null.
                 if (rssdatalist[1] == null) {
@@ -148,7 +162,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 if (rssdatalist[0] == null) {
                     Log.d(TAG, "The Halibut Bank report file is null");
                 }else {
-                    int newH = 0, oldH;
+                    int newH, oldH;
                     boolean nextHour = false;
                     RssData rssdata = rssdatalist[0];//data obj containing information from the Halibut bank xml file.
                     time = rssdata.getTime();

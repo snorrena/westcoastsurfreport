@@ -31,7 +31,7 @@ public class HttpManager {
         StringBuilder sb;
         BufferedReader reader = null;
         HttpURLConnection con;
-        String fileToReturn = "";
+        String fileToReturn = null;
 
         try {
             URL url = new URL(uri);

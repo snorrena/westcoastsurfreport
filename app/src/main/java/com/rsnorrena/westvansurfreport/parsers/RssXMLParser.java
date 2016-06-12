@@ -25,27 +25,19 @@ public class RssXMLParser {
 
     private static final String TAG = RssXMLParser.class.getSimpleName();
 
-    public static RssData[] parseFeed(String[] content) {
+    public static RssData parseFeed(String[] content, int index) {
         //method receives the string value of the xml file(s) in the String array "content"
-        // and returns the array "Rssata".
-        TinyDB tinyDB = new TinyDB(MainActivity.context);
+        // and returns the data file "Rssata".
 
         RssData rssdata = null;
         //instance of the data object class for the current data object
-
-
-
-        RssData[] rssdatalist = new RssData[2];
-        //the rssdatalist will hold all data in a format defined in the RssData class
-
-        for (int i = 0; i < content.length; i++) {//loop twice for array index 0 & 1 for the two xml files passed into the parser
 
             boolean inDataItemTag = false;
             //used to determine if we care about the current data item
             String currentTagName = "";
             //which tag we are currently in..
 
-            if (i == 0){//condition to check the first file for the Halibut Bank data
+            if (index == 0){//condition to check the first file for the Halibut Bank data
 Log.d(TAG, "Downloading the Halibut Bank data file");
                 try {//the parsing code is surrounded in the try catch
                     //creates the object the parse the xml files contained in the array
@@ -71,7 +63,6 @@ Log.d(TAG, "Downloading the Halibut Bank data file");
 
                                         inDataItemTag = true;
                                         rssdata = new RssData();//creats the obj to hold the data
-                                        rssdatalist[0] = rssdata;//the data container is then added to the array list
                                     }
 
 
@@ -137,14 +128,13 @@ Log.d(TAG, "Downloading the Halibut Bank data file");
                         eventType = parser.next();
 
                     }
-                    descriptionfieldcount = 0;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    rssdatalist[0] = null;
+                    rssdata = null;
                 }
             }
 
-            if (i == 1){
+            if (index == 1){
 Log.d(TAG, "Downloading the wind warning data file");
                 //code for parsing the windwarding data
                 //data to be collected from xml - title fields 1-3 and summary fields 1 & 2.
@@ -161,7 +151,6 @@ Log.d(TAG, "Downloading the wind warning data file");
                     int summaryfiedcount = 0;
 
                     rssdata = new RssData();// we only need one data object for the the wind warning info
-                    rssdatalist[1] = rssdata;
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {//loop through the whole file until the end tag
 
@@ -248,14 +237,12 @@ Log.d(TAG, "Downloading the wind warning data file");
                         eventType = parser.next();
 
                     }
-                    titlefieldcount = 0;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    rssdatalist[1] = null;
+                    rssdata = null;
                 }
             }
-        }
-                    return rssdatalist;
+                    return rssdata;
     }
     //method call to jsoup to strip out html tags and return plain text
     public static String html2text(String html){

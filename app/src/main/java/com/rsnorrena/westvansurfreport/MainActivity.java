@@ -288,7 +288,8 @@ public class MainActivity extends Activity{
             updateDisplay();
         }
         //sets the alarm receiver and updatedisplay service
-        startMonitor();
+//        updateDisplayService();
+//        startMonitor();
 
     }
 
@@ -306,6 +307,10 @@ public class MainActivity extends Activity{
     }
 
     public static void activityStopped(){
+        activityVisible = false;
+    }
+
+    public static void activityDestroyed(){
         activityVisible = false;
     }
 
@@ -350,10 +355,10 @@ public class MainActivity extends Activity{
     }
 
     private void WindWarningCheck() {
-        ArrayList<String> windforecast = tinydb.getList("windforecast");
-
+        ArrayList<String> windforecast = new ArrayList<String>();
         int size = 0;
         try {
+            windforecast = tinydb.getList("windforecast");
             size = windforecast.size();
         } catch (Exception e) {
             e.printStackTrace();
@@ -371,7 +376,6 @@ public class MainActivity extends Activity{
 
             }else {
                 alertwindwarning.setText("There are no wind warnings in effect.");
-                blink = false;
             }
         }
     }
@@ -395,6 +399,7 @@ public class MainActivity extends Activity{
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG,"onDestroy called");
+        MainActivity.activityDestroyed();
     }
 
     @Override
@@ -403,6 +408,8 @@ public class MainActivity extends Activity{
         Log.d(TAG,"onResume called");
         MainActivity.activityResumed();
         startMonitor();
+        updateDisplayService();
+        updateDisplay();
     }
 
     @Override
@@ -426,8 +433,6 @@ public class MainActivity extends Activity{
     }
 
     public void startMonitor() {
-
-            updateDisplayService();
 
              boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this,0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
 
@@ -501,6 +506,13 @@ public class MainActivity extends Activity{
         }
 
         SurfPotentialPercentage();
+        Log.d(TAG, "The blink boolean is set " + blink);
+
+        Log.d(TAG, "wind warning label reset to visible if blink is false");
+        if (!blink) {
+            setWindWarningVisible();
+        }
+
         WindWarningCheck();
         ToggleButtonReset();
 
@@ -1332,16 +1344,16 @@ public class MainActivity extends Activity{
     }
 
     private void blink() {
-
         if (!blink) {
             blink = true;
+            Log.d(TAG, "The blink loop is started");
             //new thread to cause the headline to blink if there is a strong windwarding in the forecast.
             new Thread(new Runnable() {
 
                 @Override
                 public void run() {
                     try {
-                        while (blink){
+                        while (isActivityVisible()){
                                 runOnUiThread(new Runnable() {
 
                                     @Override
@@ -1358,8 +1370,10 @@ public class MainActivity extends Activity{
 
                             Thread.sleep(2000 );
                         }
+                        Log.d(TAG, "The blink loop is terminated.");
+                        blink = false;
+                        Log.d(TAG, "The blink boolean is set " + blink);
                         //method call to set the windwarning to visible at termination of the blink code.
-                        setWindWarningVisible();
 
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -1386,16 +1400,28 @@ public class MainActivity extends Activity{
         time = rssdata.get(1);
         winddirection = rssdata.get(2);
         windspeed = rssdata.get(3);
+        try {
+            float windSpeed = Float.valueOf(numericwindspeed);
+        } catch (NumberFormatException e) {
+            windspeed = "0.0";
+            e.printStackTrace();
+        }
         waveheight = rssdata.get(4);
+        try {
+            Float waveHeight  = Float.valueOf(waveheight.replaceAll("[^0-9.]", ""));
+        } catch (NumberFormatException e) {
+            waveheight = "0.0";
+            e.printStackTrace();
+        }
+        Log.d(TAG, "Waveheight value to be parsed" + waveheight);
         waveinterval = rssdata.get(5);
         winddirectiondegrees = rssdata.get(6);
 
         winddirectionletters = winddirection.replaceAll("[^a-z.A-Z]", "");
         numerictime = time.replaceAll("[^0-9.:]", "");
         numericwindspeed = windspeed.replaceAll("[^0-9.]", "");
-        numericwaveheight = Float.valueOf(waveheight.replaceAll("[^0-9.]", ""));
 
-        List<String> x = new ArrayList<>(Arrays.asList(winddirectionletters, numerictime, numericwindspeed, waveheight, winddirectiondegrees));
+        List<String> x = Arrays.asList(winddirectionletters, numerictime, numericwindspeed, waveheight, winddirectiondegrees);
         return x;
     }
 
