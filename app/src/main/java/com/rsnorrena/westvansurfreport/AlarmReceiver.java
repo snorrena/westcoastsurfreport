@@ -106,16 +106,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         @Override
         protected void onPostExecute(String[] result) {
 
-            //the HttpManager will return a null string if the download fails.
-            //only run code to update info when at lease one new file is received - Halibut Bank or Weather report.
-            if (result[0] != null || result[1] != null) {
-
                 tinydb = new TinyDB (PassedContext);
                 int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
 
                 //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
                 //result = content String array passed from the doinbackground method
-
                 RssData halibutBankData = RssXMLParser.parseFeed(result, 0);
                 RssData windData = RssXMLParser.parseFeed(result, 1);
 
@@ -298,7 +293,6 @@ System.out.println("New time = " + time);
                         tinydb.putBoolean("newrecordadded", true);
                     }
                 }
-            }
         }
 
         @Override
