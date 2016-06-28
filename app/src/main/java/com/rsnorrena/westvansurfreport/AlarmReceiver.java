@@ -208,12 +208,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                         itemstoadd.add(waveinterval);
                         itemstoadd.add(winddirectiondegrees);
                         currentdatafeed.addAll(itemstoadd);
-                        System.out.println("currentdatafeed size = " + currentdatafeed.size());
-                        int index = 0;
-                        for (String item : itemstoadd) {
-                            System.out.println(index + " " + item);
-                            index++;
-                        }
 
                         recordssaved = recordssaved + 1;
                         tinydb.putInt("recordssaved", recordssaved);

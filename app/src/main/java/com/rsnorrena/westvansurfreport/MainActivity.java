@@ -473,7 +473,6 @@ public class MainActivity extends Activity{
         //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every twenty minutes
         manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
         int interval = 1000 * 60 * 10;//set the time interval for run of the alarm service code
-        System.out.format("The update interval has been set to %d minutes\n", MILLISECONDS.toMinutes(interval));
         manager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, pendingIntent);//set of a repeating alarm
 
         Toast toast = Toast.makeText(MainActivity.this, "Alarm Set", Toast.LENGTH_SHORT);

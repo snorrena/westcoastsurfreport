@@ -95,7 +95,6 @@ Log.d(TAG, "Downloading the Halibut Bank data file");
 
                                             String date = tokens[0] + " " + tokens[1] + " " + tokens[2];
                                             String time = tokens[3] + " " + tokens[4];
-                                            System.out.println("Parser time: " + time);
                                             String winddirection = tokens[11] + " " + tokens[12];
                                             String windspeed = tokens[15] + " " + tokens[16];
                                             String waveheight = tokens[24];
