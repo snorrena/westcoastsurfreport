@@ -154,11 +154,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                 }
 
                 //update the Halibut Bank data if the parser returns something other than null.
-                if (rssdatalist[0] == null) {
+                 boolean nextHour = false;
+                 if (rssdatalist[0] == null) {
                     Log.d(TAG, "The Halibut Bank report file is null");
-                }else {
+                    }else {
                     int newH, oldH;
-                    boolean nextHour = false;
                     RssData rssdata = rssdatalist[0];//data obj containing information from the Halibut bank xml file.
                     time = rssdata.getTime();
 

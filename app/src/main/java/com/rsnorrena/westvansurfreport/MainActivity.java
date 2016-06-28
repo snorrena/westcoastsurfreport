@@ -696,7 +696,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -806,7 +806,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -913,7 +913,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -1019,7 +1019,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -1125,7 +1125,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -1232,7 +1232,7 @@ public class MainActivity extends Activity{
                 winddirectionletters = x.get(0);
                 numerictime = x.get(1);
                 String y = x.get(3);
-                numericwaveheight = Float.valueOf(y.replaceAll("[^0-9.]", ""));
+                numericwaveheight = tryParseFloat(y);
                 numericwindspeed = x.get(2);
                 winddirectiondegrees = x.get(4);
 
@@ -1337,6 +1337,15 @@ public class MainActivity extends Activity{
 
     }
 
+    private float tryParseFloat(String y) {
+        try{
+            return Float.parseFloat(y.replaceAll("[^0-9.]", ""));
+        }catch (NumberFormatException e){
+            return 0.0f;
+        }
+    }
+
+
     private void ToggleButtonReset() {
         if(tinydb.getBoolean("alarmtriggered")){
             tb.setChecked(false);
@@ -1400,20 +1409,7 @@ public class MainActivity extends Activity{
         time = rssdata.get(1);
         winddirection = rssdata.get(2);
         windspeed = rssdata.get(3);
-        try {
-            float windSpeed = Float.valueOf(numericwindspeed);
-        } catch (NumberFormatException e) {
-            windspeed = "0.0";
-            e.printStackTrace();
-        }
         waveheight = rssdata.get(4);
-        try {
-            Float waveHeight  = Float.valueOf(waveheight.replaceAll("[^0-9.]", ""));
-        } catch (NumberFormatException e) {
-            waveheight = "0.0";
-            e.printStackTrace();
-        }
-        Log.d(TAG, "Waveheight value to be parsed" + waveheight);
         waveinterval = rssdata.get(5);
         winddirectiondegrees = rssdata.get(6);
 
@@ -1424,13 +1420,5 @@ public class MainActivity extends Activity{
         List<String> x = Arrays.asList(winddirectionletters, numerictime, numericwindspeed, waveheight, winddirectiondegrees);
         return x;
     }
-
-
-
-//    protected boolean isOnline() {
-//        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-//        return netInfo != null && netInfo.isConnectedOrConnecting();
-//    }
 
 }
