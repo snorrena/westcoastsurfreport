@@ -171,6 +171,8 @@ public class MainActivity extends Activity{
                                                              tinydb.remove("alarmtriggered");
                                                              tinydb.remove("lastRecordSavedDateAndTime");
 
+                                                             stopTheAndroidAlarmMonitor();
+
                                                              updateDisplay();//custom method to update the displayARM_SERVICE);
 
                                                              break;
@@ -291,6 +293,18 @@ public class MainActivity extends Activity{
 //        updateDisplayService();
 //        startMonitor();
 
+    }
+
+    private void stopTheAndroidAlarmMonitor() {
+        //cancels the Android alarm
+        manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+        alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        manager.cancel(pendingIntent);
+        pendingIntent.cancel();
+
+        //resets the Android alarm.
+        startTheAlarmMonitor();
     }
 
     public static boolean isActivityVisible(){
@@ -437,36 +451,38 @@ public class MainActivity extends Activity{
              boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this,0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
 
         if (!androidAlarmSet) {
+            startTheAlarmMonitor();
             Log.d(TAG, "The Android alarm has been set");
-
-            alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
-            pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(System.currentTimeMillis());
-            int hourofday = cal.get(Calendar.HOUR_OF_DAY);
-
-            //the alarm start time is set to the hour for sake of the check on the time stamp of the datafeed file.
-            cal.set(Calendar.HOUR_OF_DAY, hourofday);
-            cal.set(Calendar.MINUTE, 00);
-
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            String currenttime = sdf.format(cal.getTime());
-            Log.d("Start time", currenttime);
-
-            //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every twenty minutes
-            manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
-            int interval = 1000 * 60 * 10;//set the time interval for run of the alarm service code
-            System.out.format("The update interval has been set to %d minutes\n", MILLISECONDS.toMinutes(interval));
-            manager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, pendingIntent);//set of a repeating alarm
-
-            Toast toast = Toast.makeText(MainActivity.this, "Alarm Set", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();//msg indicating that the alarm has been set
-
         }else{
             Log.d(TAG, "The Android alarm is already set");
         }
+    }
+
+    private void startTheAlarmMonitor() {
+        alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis());
+        int hourofday = cal.get(Calendar.HOUR_OF_DAY);
+
+        //the alarm start time is set to the hour for sake of the check on the time stamp of the datafeed file.
+        cal.set(Calendar.HOUR_OF_DAY, hourofday);
+        cal.set(Calendar.MINUTE, 00);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        String currenttime = sdf.format(cal.getTime());
+        Log.d("Start time", currenttime);
+
+        //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every twenty minutes
+        manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+        int interval = 1000 * 60 * 10;//set the time interval for run of the alarm service code
+        System.out.format("The update interval has been set to %d minutes\n", MILLISECONDS.toMinutes(interval));
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, pendingIntent);//set of a repeating alarm
+
+        Toast toast = Toast.makeText(MainActivity.this, "Alarm Set", Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();//msg indicating that the alarm has been set
     }
 
     public void updateDisplay() {
