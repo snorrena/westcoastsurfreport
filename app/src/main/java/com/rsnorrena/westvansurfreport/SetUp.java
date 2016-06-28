@@ -16,9 +16,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-/**
- * Created by Admin on 5/6/2015.
- */
 public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActivity that is included as a proj library
 
     private static Context context;
@@ -52,7 +49,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         //call to the check license method of the LicenseCheckActivity
         //This class activity extends LicenseCheckActivity which is included in the app as a library extention
 
-                tdb_setup = new TinyDB(context);
+        tdb_setup = new TinyDB(context);
         //init of the database object
 
         initialize();// call to the class method for initialization of the EditTexts, Spinners and Buttons declared for this activity.
@@ -61,12 +58,12 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         sendtextmessage = tdb_setup.getBoolean("sendtextmessage");
         //check in the app pref database for a boolean value and set to the sendtextmessage boolean
 
-        if (!sendtextmessage){
+        if (!sendtextmessage) {
             sendtext.setChecked(!sendtext.isChecked());
         }//the check box for the send text msg is checked by default. The box is then deselected if the sendtextmessage boolean is set to false.
 
         //pre populate default settings
-        if (!appsettings){
+        if (!appsettings) {
             tdb_setup.putInt("windir", 30);
             tdb_setup.putInt("windspd", 30);
             tdb_setup.putInt("waveht", 40);
@@ -179,28 +176,29 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         String txtMsgAddress1 = tdb_setup.getString("txtMsgAddress1");
         String txtMsgAddress2 = tdb_setup.getString("txtMsgAddress2");
 
-        String serviceProviderPhone1 = txtMsgAddress1.replaceAll("[0-9]","");
-        String serviceProviderPhone2 = txtMsgAddress2.replaceAll("[0-9]","");
+        String serviceProviderPhone1 = txtMsgAddress1.replaceAll("[0-9]", "");
+        String serviceProviderPhone2 = txtMsgAddress2.replaceAll("[0-9]", "");
         Log.d("Phone1", String.valueOf(serviceProviderPhone1));
         Log.d("Phone2", String.valueOf(serviceProviderPhone2));
 
 
-        if (serviceProviderPhone1.equals("@msg.telus.com")){
+        if (serviceProviderPhone1.equals("@msg.telus.com")) {
             spinner_number1.setSelection(0);
-        }else if (serviceProviderPhone1.equals("@pcs.rogers.com")){
+        } else if (serviceProviderPhone1.equals("@pcs.rogers.com")) {
             spinner_number1.setSelection(1);
-        }else if (serviceProviderPhone1.equals("@txt.bell.ca")){
+        } else if (serviceProviderPhone1.equals("@txt.bell.ca")) {
             spinner_number1.setSelection(2);
-        }else if (serviceProviderPhone1.equals(("@fido.ca"))){
+        } else if (serviceProviderPhone1.equals(("@fido.ca"))) {
             spinner_number1.setSelection(3);
 
-        }if (serviceProviderPhone2.equals("@msg.telus.com")){
+        }
+        if (serviceProviderPhone2.equals("@msg.telus.com")) {
             spinner_number2.setSelection(0);
-        }else if (serviceProviderPhone2.equals("@pcs.rogers.com")){
+        } else if (serviceProviderPhone2.equals("@pcs.rogers.com")) {
             spinner_number2.setSelection(1);
-        }else if (serviceProviderPhone2.equals("@txt.bell.ca")){
+        } else if (serviceProviderPhone2.equals("@txt.bell.ca")) {
             spinner_number2.setSelection(2);
-        }else if (serviceProviderPhone2.equals(("@fido.ca"))){
+        } else if (serviceProviderPhone2.equals(("@fido.ca"))) {
             spinner_number2.setSelection(3);
         }
     }
@@ -225,25 +223,26 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         surfgradealarm = Integer.parseInt(surfgrade_alarm.getText().toString());
 
         datacheck = true;//set boolean initially assuming all set up data input is correct
-        if (phone1.length() < 10 && phone1.length() != 0){//start of check on set up data input
-           datacheck = false;
+        if (phone1.length() < 10 && phone1.length() != 0) {//start of check on set up data input
+            datacheck = false;
 
-        }if (phone2.length() < 10 && phone2.length() != 0){
-           datacheck = false;
+        }
+        if (phone2.length() < 10 && phone2.length() != 0) {
+            datacheck = false;
         }
 
-        if (phone1.length() == 0 && phone2.length() == 0 && sendtext.isChecked()){
+        if (phone1.length() == 0 && phone2.length() == 0 && sendtext.isChecked()) {
             datacheck = false;
         }
 
         int x = windir + windspd + waveht;//the value of the entered surf grade variables should total 100.
-        if (x != 100){
+        if (x != 100) {
             datacheck = false;
         }
 
         String emailcheck = emailaddress.replace("@gmail.com", "");
 
-        if (emailcheck.length() == 0 || password.length() == 0){
+        if (emailcheck.length() == 0 || password.length() == 0) {
             datacheck = false;
         }
 
@@ -259,11 +258,11 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             if (!phone1.isEmpty()) {
                 if (service_provider_phone1.equals("Telus")) {
                     txtMsgAddress1 = phone1 + "@msg.telus.com";
-                }else if (service_provider_phone1.equals("Rogers")){
+                } else if (service_provider_phone1.equals("Rogers")) {
                     txtMsgAddress1 = phone1 + "@pcs.rogers.com";
-                }else if (service_provider_phone1.equals("Bell")){
+                } else if (service_provider_phone1.equals("Bell")) {
                     txtMsgAddress1 = phone1 + "@txt.bell.ca";
-                }else if (service_provider_phone1.equals("Fido")){
+                } else if (service_provider_phone1.equals("Fido")) {
                     txtMsgAddress1 = phone1 + "@fido.ca";
                 }
             }
@@ -271,11 +270,11 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             if (!phone2.isEmpty()) {
                 if (service_provider_phone2.equals("Telus")) {
                     txtMsgAddress2 = phone2 + "@msg.telus.com";
-                }else if (service_provider_phone2.equals("Rogers")){
+                } else if (service_provider_phone2.equals("Rogers")) {
                     txtMsgAddress2 = phone2 + "@pcs.rogers.com";
-                }else if (service_provider_phone2.equals("Bell")){
+                } else if (service_provider_phone2.equals("Bell")) {
                     txtMsgAddress2 = phone2 + "@txt.bell.ca";
-                }else if (service_provider_phone2.equals("Fido")){
+                } else if (service_provider_phone2.equals("Fido")) {
                     txtMsgAddress2 = phone2 + "@fido.ca";
                 }
             }
@@ -294,7 +293,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             tdb_setup.putInt("windspd", windspd);
             tdb_setup.putInt("waveht", waveht);
             tdb_setup.putInt("surfgradealarm", surfgradealarm);
-        }else{
+        } else {
             Toast toast = Toast.makeText(context, "Error!  Please check input data.", Toast.LENGTH_LONG);//error message displayed if set up data is incorrect.
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -346,7 +345,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
 
         sendtextmessage = tdb_setup.getBoolean("sendtextmessage");
 
-        if (sendtextmessage){//deselect the send message checkbox if it is currently selected
+        if (sendtextmessage) {//deselect the send message checkbox if it is currently selected
             sendtext.setChecked(false);
             tdb_setup.putBoolean("sendtextmessage", false);
         }
@@ -382,7 +381,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         }
 
         if (appsettings) {//set all layout fields if set up data already stored in app prefs
-         DisplayExistingData();
+            DisplayExistingData();
         }
 
 

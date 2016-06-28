@@ -2,9 +2,6 @@ package com.rsnorrena.westvansurfreport;
 
 import android.util.Log;
 
-/**
- * Created by Admin on 2016-05-17.
- */
 public class SendAlarmMessage {
 
     private TinyDB tinydb;
@@ -18,7 +15,7 @@ public class SendAlarmMessage {
     private String winddirectiondegrees;
 
     public SendAlarmMessage(TinyDB tinydb, String surfreport, String date, String time, String winddirection, String windspeed,
-    String waveheight, String waveinterval, String winddirectiondegrees ) {
+                            String waveheight, String waveinterval, String winddirectiondegrees) {
         this.tinydb = tinydb;
         this.surfreport = surfreport;
         this.date = date;
@@ -30,10 +27,7 @@ public class SendAlarmMessage {
         this.winddirectiondegrees = winddirectiondegrees;
     }
 
-
-
-
-    public void sendEmailMessage(){
+    public void sendEmailMessage() {
         Thread thread = new Thread() {
 
             @Override
@@ -43,13 +37,13 @@ public class SendAlarmMessage {
                     String emailaddress = tinydb.getString("emailaddress");
                     String password = tinydb.getString("password");
 
-
                     String phone1 = tinydb.getString("txtMsgAddress1");
                     String phone2 = tinydb.getString("txtMsgAddress2");
 
                     int totalphonenumbers = 0;//sets the array of phone numbers to be passed to the mail code
                     if (phone1.length() != 0) {//the array can only be one or two if the sendtextmessage boolean is true
-                        totalphonenumbers = totalphonenumbers + 1;                                        }
+                        totalphonenumbers = totalphonenumbers + 1;
+                    }
                     if (phone2.length() != 0) {
                         totalphonenumbers = totalphonenumbers + 1;
                     }

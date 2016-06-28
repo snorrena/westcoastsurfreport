@@ -3,6 +3,7 @@ package com.rsnorrena.westvansurfreport;
 /**
  * Created by Admin on 4/2/2015.
  */
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -46,7 +47,6 @@ public class TinyDB {
     /**
      * Returns the String path of the last image that was saved with this Object
      * <p>
-     *
      */
     public String getSavedImagePath() {
         return lastImagePath;
@@ -57,13 +57,10 @@ public class TinyDB {
      * tnydbobj
      * <p>
      *
-     * @param //String
-     *            the theFolder - the folder path dir you want to save it to e.g
-     *            "DropBox/WorkImages"
-     * @param //String
-     *            the theImageName - the name you want to assign to the image file e.g
-     *            "MeAtlunch.png"
-     *
+     * @param //String the theFolder - the folder path dir you want to save it to e.g
+     *                 "DropBox/WorkImages"
+     * @param //String the theImageName - the name you want to assign to the image file e.g
+     *                 "MeAtlunch.png"
      */
     public String putImagePNG(String theFolder, String theImageName,
                               Bitmap theBitmap) {
@@ -74,7 +71,7 @@ public class TinyDB {
         return mFullPath;
     }
 
-    public Boolean putImagePNGwithfullPath(String fullPath, Bitmap theBitmap){
+    public Boolean putImagePNGwithfullPath(String fullPath, Bitmap theBitmap) {
         return saveBitmapPNG(fullPath, theBitmap);
     }
 
@@ -162,9 +159,7 @@ public class TinyDB {
         try {
             double value = Double.parseDouble(number);
             return value;
-        }
-        catch(NumberFormatException e)
-        {
+        } catch (NumberFormatException e) {
             return 0;
         }
     }
@@ -240,12 +235,12 @@ public class TinyDB {
         return gottenlist2;
     }
 
-    public void putListBoolean(String key, ArrayList<Boolean> marray){
+    public void putListBoolean(String key, ArrayList<Boolean> marray) {
         ArrayList<String> origList = new ArrayList<String>();
-        for(Boolean b : marray){
-            if(b==true){
+        for (Boolean b : marray) {
+            if (b == true) {
                 origList.add("true");
-            }else{
+            } else {
                 origList.add("false");
             }
         }
@@ -255,10 +250,10 @@ public class TinyDB {
     public ArrayList<Boolean> getListBoolean(String key) {
         ArrayList<String> origList = getList(key);
         ArrayList<Boolean> mBools = new ArrayList<Boolean>();
-        for(String b : origList){
-            if(b.equals("true")){
+        for (String b : origList) {
+            if (b.equals("true")) {
                 mBools.add(true);
-            }else{
+            } else {
                 mBools.add(false);
             }
         }
@@ -291,7 +286,7 @@ public class TinyDB {
         editor.apply();
     }
 
-    public Boolean deleteImage(String path){
+    public Boolean deleteImage(String path) {
         File tobedeletedImage = new File(path);
         Boolean isDeleted = tobedeletedImage.delete();
         return isDeleted;

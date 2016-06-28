@@ -1,12 +1,5 @@
 package com.rsnorrena.westvansurfreport.model;
 
-import android.text.format.Time;
-
-import java.util.Date;
-
-/**
- * Created by Admin on 3/30/2015.
- */
 public class RssData {
 
     private String date;
@@ -20,23 +13,6 @@ public class RssData {
     private String title3;
     private String summary1;
     private String summary2;
-
-    @Override
-    public String toString() {
-        return "RssData{" +
-                "date='" + date + '\'' +
-                ", time='" + time + '\'' +
-                ", wind_direction='" + wind_direction + '\'' +
-                ", wind_speed='" + wind_speed + '\'' +
-                ", wave_height='" + wave_height + '\'' +
-                ", wave_interval='" + wave_interval + '\'' +
-                ", title1='" + title1 + '\'' +
-                ", title2='" + title2 + '\'' +
-                ", title3='" + title3 + '\'' +
-                ", summary1='" + summary1 + '\'' +
-                ", summary2='" + summary2 + '\'' +
-                '}';
-    }
 
     public String getSummary1() {
         return summary1;

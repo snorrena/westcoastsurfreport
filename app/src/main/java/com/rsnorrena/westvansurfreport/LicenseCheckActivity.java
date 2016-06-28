@@ -3,6 +3,7 @@ package com.rsnorrena.westvansurfreport;
 /**
  * Created by Admin on 6/11/2015.
  */
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,7 +21,6 @@ import com.google.android.vending.licensing.LicenseChecker;
 import com.google.android.vending.licensing.LicenseCheckerCallback;
 import com.google.android.vending.licensing.Policy;
 import com.google.android.vending.licensing.ServerManagedPolicy;
-
 
 
 public class LicenseCheckActivity extends Activity {

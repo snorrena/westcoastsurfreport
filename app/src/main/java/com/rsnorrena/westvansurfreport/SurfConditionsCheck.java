@@ -1,29 +1,20 @@
 package com.rsnorrena.westvansurfreport;
 
-import android.content.Context;
-
 import java.util.List;
 
-/**
- * Created by Admin on 4/13/2015.
- */
 public class SurfConditionsCheck {
-
 
     public static void SurfScore() {
 
         int surfgrade = 0;
-
         List<String> retrieveddatarecord;
         int recordssaved = 0;
-
         float threehourgoodwindtrend = 0;
         float threehouronemeterwaveheight = 0;
         float threehourtwentyknotwinds = 0;
 
         TinyDB tinydb = new TinyDB(MainActivity.context);
         recordssaved = tinydb.getInt("recordssaved");
-
 
         int recordstart = recordssaved - 2;
 
@@ -70,7 +61,7 @@ public class SurfConditionsCheck {
             surfgrade = Math.round((windtrendgrade * windir + waveheightgrade * waveht + windspeedgrade * windspd) / 100);
 
 
-        }else{
+        } else {
             surfgrade = 0;
         }
         tinydb.putInt("surfgrade", surfgrade);

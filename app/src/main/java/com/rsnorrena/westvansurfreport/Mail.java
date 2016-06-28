@@ -2,6 +2,7 @@ package com.rsnorrena.westvansurfreport;
 
 import java.util.Date;
 import java.util.Properties;
+
 import javax.activation.CommandMap;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -107,7 +108,7 @@ public class Mail extends javax.mail.Authenticator {
     public boolean send() throws Exception {
         Properties props = _setProperties();
 
-        if(!_user.equals("") && !_pass.equals("") && _to.length > 0 && !_from.equals("") && !_subject.equals("") && !_body.equals("")) {
+        if (!_user.equals("") && !_pass.equals("") && _to.length > 0 && !_from.equals("") && !_subject.equals("") && !_body.equals("")) {
             Session session = Session.getInstance(props, this);
 
             MimeMessage msg = new MimeMessage(session);
@@ -159,11 +160,11 @@ public class Mail extends javax.mail.Authenticator {
 
         props.put("mail.smtp.host", _host);
 
-        if(_debuggable) {
+        if (_debuggable) {
             props.put("mail.debug", "true");
         }
 
-        if(_auth) {
+        if (_auth) {
             props.put("mail.smtp.auth", "true");
         }
 

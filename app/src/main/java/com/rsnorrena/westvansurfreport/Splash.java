@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-/**
- * Created by Admin on 5/7/2015.
- */
 public class Splash extends Activity {
 
     public static Context context;
     //declaration of the context variable for this class
 
-        TinyDB tdb_splash;
-        boolean appsettings;
+    TinyDB tdb_splash;
+    boolean appsettings;
     //declaration of the class fields/variables for the preference database and the boolean for the app settings
 
     @Override
@@ -26,17 +23,12 @@ public class Splash extends Activity {
         context = getApplication();
         //sets the context variable by calling the getApplication method of the Activity class
 
-
-
-
-
         appsettings = false;
         //initializes the app settings boolean
 
-
-            tdb_splash = new TinyDB(context);
+        tdb_splash = new TinyDB(context);
         //initializes the preferences database for this app
-            appsettings = tdb_splash.getBoolean("appsettings");
+        appsettings = tdb_splash.getBoolean("appsettings");
         //check of the preferences database to determine if the app settinhgs have been saved
 
 
@@ -51,17 +43,16 @@ public class Splash extends Activity {
                     e.printStackTrace();
                 } finally {
 
-                        if (appsettings) {//start the main activity if the app settings boolean is set to true. Otherwise go to the set up screen.
-                            Intent ourIntent = new Intent(Splash.this, MainActivity.class);
-                            ourIntent.setFlags(ourIntent.FLAG_ACTIVITY_CLEAR_TOP);
-                            Splash.this.startActivity(ourIntent);
-                            finish();
-                        } else {
-                            Intent ourIntent = new Intent(Splash.this, SetUp.class);
-                            Splash.this.startActivity(ourIntent);
-                            finish();
-                        }
-
+                    if (appsettings) {//start the main activity if the app settings boolean is set to true. Otherwise go to the set up screen.
+                        Intent ourIntent = new Intent(Splash.this, MainActivity.class);
+                        ourIntent.setFlags(ourIntent.FLAG_ACTIVITY_CLEAR_TOP);
+                        Splash.this.startActivity(ourIntent);
+                        finish();
+                    } else {
+                        Intent ourIntent = new Intent(Splash.this, SetUp.class);
+                        Splash.this.startActivity(ourIntent);
+                        finish();
+                    }
 
                 }
 

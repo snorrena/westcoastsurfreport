@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.*;
 
-public class MainActivity extends Activity{
+public class MainActivity extends Activity {
 
     //initialization of class variables (highlighted purple)
     private ToggleButton tb;
@@ -62,16 +62,16 @@ public class MainActivity extends Activity{
     private int recordssaved = 0;
 
     //Declaration of textfields in the main screen layout
-    private TextView tvd1,tvd2,tvd3,tvd5,tvd6,tvd7,tvd8,tvd9,tvd10,tvd11,tvd12,tvd13,tvd14,tvd16;
-    private TextView tve1,tve2,tve3,tve5,tve6,tve7,tve8,tve9,tve10,tve11,tve12,tve13,tve14,tve16;
-    private TextView tvf1,tvf2,tvf3,tvf5,tvf6,tvf7,tvf8,tvf9,tvf10,tvf11,tvf12,tvf13,tvf14,tvf16;
-    private TextView tvg1,tvg2,tvg3,tvg5,tvg6,tvg7,tvg8,tvg9,tvg10,tvg11,tvg12,tvg13,tvg14,tvg16;
-    private TextView tvh1,tvh2,tvh3,tvh5,tvh6,tvh7,tvh8,tvh9,tvh10,tvh11,tvh12,tvh13,tvh14,tvh16;
-    private TextView tvi1,tvi2,tvi3,tvi5,tvi6,tvi7,tvi8,tvi9,tvi10,tvi11,tvi12,tvi13,tvi14,tvi16;
+    private TextView tvd1, tvd2, tvd3, tvd5, tvd6, tvd7, tvd8, tvd9, tvd10, tvd11, tvd12, tvd13, tvd14, tvd16;
+    private TextView tve1, tve2, tve3, tve5, tve6, tve7, tve8, tve9, tve10, tve11, tve12, tve13, tve14, tve16;
+    private TextView tvf1, tvf2, tvf3, tvf5, tvf6, tvf7, tvf8, tvf9, tvf10, tvf11, tvf12, tvf13, tvf14, tvf16;
+    private TextView tvg1, tvg2, tvg3, tvg5, tvg6, tvg7, tvg8, tvg9, tvg10, tvg11, tvg12, tvg13, tvg14, tvg16;
+    private TextView tvh1, tvh2, tvh3, tvh5, tvh6, tvh7, tvh8, tvh9, tvh10, tvh11, tvh12, tvh13, tvh14, tvh16;
+    private TextView tvi1, tvi2, tvi3, tvi5, tvi6, tvi7, tvi8, tvi9, tvi10, tvi11, tvi12, tvi13, tvi14, tvi16;
     private TextView alertwindwarning;
 
     private TinyDB tinydb;
-//    private boolean blink;
+    //    private boolean blink;
     private static boolean activityVisible, serviceStarted, blink;
 
     public static Context context;
@@ -84,7 +84,7 @@ public class MainActivity extends Activity{
 
     @Override//send user to the setup screen on press of the menu button
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch(keyCode){
+        switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
                 Intent myIntent = new Intent(MainActivity.this, SetUp.class);
 //                myIntent.setFlags(myIntent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -117,9 +117,9 @@ public class MainActivity extends Activity{
         tb.setOnClickListener(new View.OnClickListener() {//onclick listener to start/stop the monitoring service
             @Override
             public void onClick(View v) {
-                if (tb.isChecked()){
+                if (tb.isChecked()) {
                     tinydb.putBoolean("alarmtriggered", false);
-                }else{
+                } else {
                     //turns off tts and media player
                     SoundAlarm soundAlarm = new SoundAlarm();
                     soundAlarm.alarmOff();
@@ -148,148 +148,148 @@ public class MainActivity extends Activity{
             }
         });
 
-        cleardata.setOnClickListener(new View.OnClickListener(){//onclick listener for the clear data button
+        cleardata.setOnClickListener(new View.OnClickListener() {//onclick listener for the clear data button
 
-                                         @Override
-                                         public void onClick(View v) {
-                                                //extra dialog to confirm choice to clear data
-                                             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                                                 @Override
-                                                 public void onClick(DialogInterface dialog, int which) {
-                                                     switch (which){
-                                                         case DialogInterface.BUTTON_POSITIVE://remove records saved in app prefs and update display
+            @Override
+            public void onClick(View v) {
+                //extra dialog to confirm choice to clear data
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE://remove records saved in app prefs and update display
 
-                                                             tinydb.remove("windforecast");
-                                                             tinydb.putInt("surfgrade", 0);
-                                                             tinydb.putInt("recordssaved", 0);
-                                                             tinydb.remove("saveddatarecord1");
-                                                             tinydb.remove("saveddatarecord2");
-                                                             tinydb.remove("saveddatarecord3");
-                                                             tinydb.remove("saveddatarecord4");
-                                                             tinydb.remove("saveddatarecord5");
-                                                             tinydb.remove("saveddatarecord6");
-                                                             tinydb.remove("alarmtriggered");
-                                                             tinydb.remove("lastRecordSavedDateAndTime");
+                                tinydb.remove("windforecast");
+                                tinydb.putInt("surfgrade", 0);
+                                tinydb.putInt("recordssaved", 0);
+                                tinydb.remove("saveddatarecord1");
+                                tinydb.remove("saveddatarecord2");
+                                tinydb.remove("saveddatarecord3");
+                                tinydb.remove("saveddatarecord4");
+                                tinydb.remove("saveddatarecord5");
+                                tinydb.remove("saveddatarecord6");
+                                tinydb.remove("alarmtriggered");
+                                tinydb.remove("lastRecordSavedDateAndTime");
 
-                                                             stopTheAndroidAlarmMonitor();
+                                stopTheAndroidAlarmMonitor();
 
-                                                             updateDisplay();//custom method to update the displayARM_SERVICE);
+                                updateDisplay();//custom method to update the displayARM_SERVICE);
 
-                                                             break;
-                                                         case DialogInterface.BUTTON_NEGATIVE:
-                                                             break;
-                                                     }
-                                                 }
-                                             };
-                                             AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                                             builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
 
-                                         }
-                                     });
+            }
+        });
 
 
 //instantiation of the textviews on the main display
-        tvd1 = (TextView)findViewById(R.id.tvd1);
-        tvd2 = (TextView)findViewById(R.id.tvd2);
-        tvd3 = (TextView)findViewById(R.id.tvd3);
-        tvd5 = (TextView)findViewById(R.id.tvd5);
-        tvd6 = (TextView)findViewById(R.id.tvd6);
-        tvd7 = (TextView)findViewById(R.id.tvd7);
-        tvd8 = (TextView)findViewById(R.id.tvd8);
-        tvd9 = (TextView)findViewById(R.id.tvd9);
-        tvd10 = (TextView)findViewById(R.id.tvd10);
-        tvd11 = (TextView)findViewById(R.id.tvd11);
-        tvd12 = (TextView)findViewById(R.id.tvd12);
-        tvd13 = (TextView)findViewById(R.id.tvd13);
-        tvd14 = (TextView)findViewById(R.id.tvd14);
-        tvd16 = (TextView)findViewById(R.id.tvd16);
+        tvd1 = (TextView) findViewById(R.id.tvd1);
+        tvd2 = (TextView) findViewById(R.id.tvd2);
+        tvd3 = (TextView) findViewById(R.id.tvd3);
+        tvd5 = (TextView) findViewById(R.id.tvd5);
+        tvd6 = (TextView) findViewById(R.id.tvd6);
+        tvd7 = (TextView) findViewById(R.id.tvd7);
+        tvd8 = (TextView) findViewById(R.id.tvd8);
+        tvd9 = (TextView) findViewById(R.id.tvd9);
+        tvd10 = (TextView) findViewById(R.id.tvd10);
+        tvd11 = (TextView) findViewById(R.id.tvd11);
+        tvd12 = (TextView) findViewById(R.id.tvd12);
+        tvd13 = (TextView) findViewById(R.id.tvd13);
+        tvd14 = (TextView) findViewById(R.id.tvd14);
+        tvd16 = (TextView) findViewById(R.id.tvd16);
 
-        tve1 = (TextView)findViewById(R.id.tve1);
-        tve2 = (TextView)findViewById(R.id.tve2);
-        tve3 = (TextView)findViewById(R.id.tve3);
-        tve5 = (TextView)findViewById(R.id.tve5);
-        tve6 = (TextView)findViewById(R.id.tve6);
-        tve7 = (TextView)findViewById(R.id.tve7);
-        tve8 = (TextView)findViewById(R.id.tve8);
-        tve9 = (TextView)findViewById(R.id.tve9);
-        tve10 = (TextView)findViewById(R.id.tve10);
-        tve11 = (TextView)findViewById(R.id.tve11);
-        tve12 = (TextView)findViewById(R.id.tve12);
-        tve13 = (TextView)findViewById(R.id.tve13);
-        tve14 = (TextView)findViewById(R.id.tve14);
-        tve16 = (TextView)findViewById(R.id.tve16);
+        tve1 = (TextView) findViewById(R.id.tve1);
+        tve2 = (TextView) findViewById(R.id.tve2);
+        tve3 = (TextView) findViewById(R.id.tve3);
+        tve5 = (TextView) findViewById(R.id.tve5);
+        tve6 = (TextView) findViewById(R.id.tve6);
+        tve7 = (TextView) findViewById(R.id.tve7);
+        tve8 = (TextView) findViewById(R.id.tve8);
+        tve9 = (TextView) findViewById(R.id.tve9);
+        tve10 = (TextView) findViewById(R.id.tve10);
+        tve11 = (TextView) findViewById(R.id.tve11);
+        tve12 = (TextView) findViewById(R.id.tve12);
+        tve13 = (TextView) findViewById(R.id.tve13);
+        tve14 = (TextView) findViewById(R.id.tve14);
+        tve16 = (TextView) findViewById(R.id.tve16);
 
-        tvf1 = (TextView)findViewById(R.id.tvf1);
-        tvf2 = (TextView)findViewById(R.id.tvf2);
-        tvf3 = (TextView)findViewById(R.id.tvf3);
-        tvf5 = (TextView)findViewById(R.id.tvf5);
-        tvf6 = (TextView)findViewById(R.id.tvf6);
-        tvf7 = (TextView)findViewById(R.id.tvf7);
-        tvf8 = (TextView)findViewById(R.id.tvf8);
-        tvf9 = (TextView)findViewById(R.id.tvf9);
-        tvf10 = (TextView)findViewById(R.id.tvf10);
-        tvf11 = (TextView)findViewById(R.id.tvf11);
-        tvf12 = (TextView)findViewById(R.id.tvf12);
-        tvf13 = (TextView)findViewById(R.id.tvf13);
-        tvf14 = (TextView)findViewById(R.id.tvf14);
-        tvf16 = (TextView)findViewById(R.id.tvf16);
+        tvf1 = (TextView) findViewById(R.id.tvf1);
+        tvf2 = (TextView) findViewById(R.id.tvf2);
+        tvf3 = (TextView) findViewById(R.id.tvf3);
+        tvf5 = (TextView) findViewById(R.id.tvf5);
+        tvf6 = (TextView) findViewById(R.id.tvf6);
+        tvf7 = (TextView) findViewById(R.id.tvf7);
+        tvf8 = (TextView) findViewById(R.id.tvf8);
+        tvf9 = (TextView) findViewById(R.id.tvf9);
+        tvf10 = (TextView) findViewById(R.id.tvf10);
+        tvf11 = (TextView) findViewById(R.id.tvf11);
+        tvf12 = (TextView) findViewById(R.id.tvf12);
+        tvf13 = (TextView) findViewById(R.id.tvf13);
+        tvf14 = (TextView) findViewById(R.id.tvf14);
+        tvf16 = (TextView) findViewById(R.id.tvf16);
 
-        tvg1 = (TextView)findViewById(R.id.tvg1);
-        tvg2 = (TextView)findViewById(R.id.tvg2);
-        tvg3 = (TextView)findViewById(R.id.tvg3);
-        tvg5 = (TextView)findViewById(R.id.tvg5);
-        tvg6 = (TextView)findViewById(R.id.tvg6);
-        tvg7 = (TextView)findViewById(R.id.tvg7);
-        tvg8 = (TextView)findViewById(R.id.tvg8);
-        tvg9 = (TextView)findViewById(R.id.tvg9);
-        tvg10 = (TextView)findViewById(R.id.tvg10);
-        tvg11 = (TextView)findViewById(R.id.tvg11);
-        tvg12 = (TextView)findViewById(R.id.tvg12);
-        tvg13 = (TextView)findViewById(R.id.tvg13);
-        tvg14 = (TextView)findViewById(R.id.tvg14);
-        tvg16 = (TextView)findViewById(R.id.tvg16);
+        tvg1 = (TextView) findViewById(R.id.tvg1);
+        tvg2 = (TextView) findViewById(R.id.tvg2);
+        tvg3 = (TextView) findViewById(R.id.tvg3);
+        tvg5 = (TextView) findViewById(R.id.tvg5);
+        tvg6 = (TextView) findViewById(R.id.tvg6);
+        tvg7 = (TextView) findViewById(R.id.tvg7);
+        tvg8 = (TextView) findViewById(R.id.tvg8);
+        tvg9 = (TextView) findViewById(R.id.tvg9);
+        tvg10 = (TextView) findViewById(R.id.tvg10);
+        tvg11 = (TextView) findViewById(R.id.tvg11);
+        tvg12 = (TextView) findViewById(R.id.tvg12);
+        tvg13 = (TextView) findViewById(R.id.tvg13);
+        tvg14 = (TextView) findViewById(R.id.tvg14);
+        tvg16 = (TextView) findViewById(R.id.tvg16);
 
-        tvh1 = (TextView)findViewById(R.id.tvh1);
-        tvh2 = (TextView)findViewById(R.id.tvh2);
-        tvh3 = (TextView)findViewById(R.id.tvh3);
-        tvh5 = (TextView)findViewById(R.id.tvh5);
-        tvh6 = (TextView)findViewById(R.id.tvh6);
-        tvh7 = (TextView)findViewById(R.id.tvh7);
-        tvh8 = (TextView)findViewById(R.id.tvh8);
-        tvh9 = (TextView)findViewById(R.id.tvh9);
-        tvh10 = (TextView)findViewById(R.id.tvh10);
-        tvh11 = (TextView)findViewById(R.id.tvh11);
-        tvh12 = (TextView)findViewById(R.id.tvh12);
-        tvh13 = (TextView)findViewById(R.id.tvh13);
-        tvh14 = (TextView)findViewById(R.id.tvh14);
-        tvh16 = (TextView)findViewById(R.id.tvh16);
+        tvh1 = (TextView) findViewById(R.id.tvh1);
+        tvh2 = (TextView) findViewById(R.id.tvh2);
+        tvh3 = (TextView) findViewById(R.id.tvh3);
+        tvh5 = (TextView) findViewById(R.id.tvh5);
+        tvh6 = (TextView) findViewById(R.id.tvh6);
+        tvh7 = (TextView) findViewById(R.id.tvh7);
+        tvh8 = (TextView) findViewById(R.id.tvh8);
+        tvh9 = (TextView) findViewById(R.id.tvh9);
+        tvh10 = (TextView) findViewById(R.id.tvh10);
+        tvh11 = (TextView) findViewById(R.id.tvh11);
+        tvh12 = (TextView) findViewById(R.id.tvh12);
+        tvh13 = (TextView) findViewById(R.id.tvh13);
+        tvh14 = (TextView) findViewById(R.id.tvh14);
+        tvh16 = (TextView) findViewById(R.id.tvh16);
 
-        tvi1 = (TextView)findViewById(R.id.tvi1);
-        tvi2 = (TextView)findViewById(R.id.tvi2);
-        tvi3 = (TextView)findViewById(R.id.tvi3);
-        tvi5 = (TextView)findViewById(R.id.tvi5);
-        tvi6 = (TextView)findViewById(R.id.tvi6);
-        tvi7 = (TextView)findViewById(R.id.tvi7);
-        tvi8 = (TextView)findViewById(R.id.tvi8);
-        tvi9 = (TextView)findViewById(R.id.tvi9);
-        tvi10 = (TextView)findViewById(R.id.tvi10);
-        tvi11 = (TextView)findViewById(R.id.tvi11);
-        tvi12 = (TextView)findViewById(R.id.tvi12);
-        tvi13 = (TextView)findViewById(R.id.tvi13);
-        tvi14 = (TextView)findViewById(R.id.tvi14);
-        tvi16 = (TextView)findViewById(R.id.tvi16);
+        tvi1 = (TextView) findViewById(R.id.tvi1);
+        tvi2 = (TextView) findViewById(R.id.tvi2);
+        tvi3 = (TextView) findViewById(R.id.tvi3);
+        tvi5 = (TextView) findViewById(R.id.tvi5);
+        tvi6 = (TextView) findViewById(R.id.tvi6);
+        tvi7 = (TextView) findViewById(R.id.tvi7);
+        tvi8 = (TextView) findViewById(R.id.tvi8);
+        tvi9 = (TextView) findViewById(R.id.tvi9);
+        tvi10 = (TextView) findViewById(R.id.tvi10);
+        tvi11 = (TextView) findViewById(R.id.tvi11);
+        tvi12 = (TextView) findViewById(R.id.tvi12);
+        tvi13 = (TextView) findViewById(R.id.tvi13);
+        tvi14 = (TextView) findViewById(R.id.tvi14);
+        tvi16 = (TextView) findViewById(R.id.tvi16);
 
         alertwindwarning = (TextView) findViewById(R.id.tvwindwarning);
-        
+
 
 //call to update the display if there is at least one record saved in the preferences database
         tinydb = new TinyDB(context);
         recordssaved = tinydb.getInt("recordssaved");
         Log.d(TAG, String.valueOf(recordssaved));
-        if (recordssaved > 0){
+        if (recordssaved > 0) {
             updateDisplay();
         }
-            }
+    }
 
     private void stopTheAndroidAlarmMonitor() {
         //cancels the Android alarm
@@ -303,24 +303,24 @@ public class MainActivity extends Activity{
         startTheAlarmMonitor();
     }
 
-    public static boolean isActivityVisible(){
+    public static boolean isActivityVisible() {
         return activityVisible;
     }
 
-    public static void activityResumed(){
+    public static void activityResumed() {
         activityVisible = true;
         serviceStarted = false;
     }
 
-    public static void activityPaused(){
+    public static void activityPaused() {
         activityVisible = false;
     }
 
-    public static void activityStopped(){
+    public static void activityStopped() {
         activityVisible = false;
     }
 
-    public static void activityDestroyed(){
+    public static void activityDestroyed() {
         activityVisible = false;
     }
 
@@ -358,7 +358,7 @@ public class MainActivity extends Activity{
 
                 }
             }).start();
-        }else{
+        } else {
             Log.d(TAG, "The update display service is already running");
         }
 
@@ -384,7 +384,7 @@ public class MainActivity extends Activity{
                 blink();
 
 
-            }else {
+            } else {
                 alertwindwarning.setText("There are no wind warnings in effect.");
             }
         }
@@ -408,14 +408,14 @@ public class MainActivity extends Activity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG,"onDestroy called");
+        Log.d(TAG, "onDestroy called");
         MainActivity.activityDestroyed();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG,"onResume called");
+        Log.d(TAG, "onResume called");
         MainActivity.activityResumed();
         startMonitor();
         updateDisplayService();
@@ -423,33 +423,33 @@ public class MainActivity extends Activity{
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
-        Log.d(TAG,"onStop called");
+        Log.d(TAG, "onStop called");
         MainActivity.activityStopped();
     }
 
     @Override
-    protected  void onRestart(){
+    protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "onRestart called");
 
     }
 
     @Override
-    protected  void onPause(){
+    protected void onPause() {
         super.onPause();
         MainActivity.activityPaused();
     }
 
     public void startMonitor() {
 
-             boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this,0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
+        boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this, 0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
 
         if (!androidAlarmSet) {
             startTheAlarmMonitor();
             Log.d(TAG, "The Android alarm has been set");
-        }else{
+        } else {
             Log.d(TAG, "The Android alarm is already set");
         }
     }
@@ -502,7 +502,7 @@ public class MainActivity extends Activity{
         long hourDiff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
         Log.d(TAG, "Time span between records: " + hourDiff + " hours");
         //if the time span between the last saved record and the current time is greater than 2 hours reset all data.
-        if(hourDiff > 2){
+        if (hourDiff > 2) {
             tinydb.remove("windforecast");
             tinydb.putInt("surfgrade", 0);
             tinydb.putInt("recordssaved", 0);
@@ -789,7 +789,7 @@ public class MainActivity extends Activity{
                     tvd13.setText("|");
                     tvd14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tvd5.setTypeface(null, Typeface.BOLD);
                     tvd5.setText(numericwindspeed);
                     tvd6.setText("|");
@@ -898,7 +898,7 @@ public class MainActivity extends Activity{
                     tve13.setText("|");
                     tve14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tve5.setTypeface(null, Typeface.BOLD);
                     tve5.setText(numericwindspeed);
                     tve6.setText("|");
@@ -1004,7 +1004,7 @@ public class MainActivity extends Activity{
                     tvf13.setText("|");
                     tvf14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tvf5.setTypeface(null, Typeface.BOLD);
                     tvf5.setText(numericwindspeed);
                     tvf6.setText("|");
@@ -1110,7 +1110,7 @@ public class MainActivity extends Activity{
                     tvg13.setText("|");
                     tvg14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tvg5.setTypeface(null, Typeface.BOLD);
                     tvg5.setText(numericwindspeed);
                     tvg6.setText("|");
@@ -1216,7 +1216,7 @@ public class MainActivity extends Activity{
                     tvh13.setText("|");
                     tvh14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tvh5.setTypeface(null, Typeface.BOLD);
                     tvh5.setText(numericwindspeed);
                     tvh6.setText("|");
@@ -1323,7 +1323,7 @@ public class MainActivity extends Activity{
                     tvi13.setText("|");
                     tvi14.setText("|");
 
-                } else  {//5
+                } else {//5
                     tvi5.setTypeface(null, Typeface.BOLD);
                     tvi5.setText(numericwindspeed);
                     tvi6.setText("|");
@@ -1349,16 +1349,16 @@ public class MainActivity extends Activity{
     }
 
     private float tryParseFloat(String y) {
-        try{
+        try {
             return Float.parseFloat(y.replaceAll("[^0-9.]", ""));
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return 0.0f;
         }
     }
 
 
     private void ToggleButtonReset() {
-        if(tinydb.getBoolean("alarmtriggered")){
+        if (tinydb.getBoolean("alarmtriggered")) {
             tb.setChecked(false);
         }
     }
@@ -1373,22 +1373,22 @@ public class MainActivity extends Activity{
                 @Override
                 public void run() {
                     try {
-                        while (isActivityVisible()){
-                                runOnUiThread(new Runnable() {
+                        while (isActivityVisible()) {
+                            runOnUiThread(new Runnable() {
 
-                                    @Override
-                                    public void run() {
+                                @Override
+                                public void run() {
 
-                                        if (alertwindwarning.getVisibility() == View.VISIBLE) {
-                                            alertwindwarning.setVisibility(View.INVISIBLE);
-                                        } else {
-                                            alertwindwarning.setVisibility(View.VISIBLE);
-                                        }
-
+                                    if (alertwindwarning.getVisibility() == View.VISIBLE) {
+                                        alertwindwarning.setVisibility(View.INVISIBLE);
+                                    } else {
+                                        alertwindwarning.setVisibility(View.VISIBLE);
                                     }
-                                });
 
-                            Thread.sleep(2000 );
+                                }
+                            });
+
+                            Thread.sleep(2000);
                         }
                         Log.d(TAG, "The blink loop is terminated.");
                         blink = false;
@@ -1411,7 +1411,7 @@ public class MainActivity extends Activity{
         }
     }
 
-//method call to pull the saved data from shared preferences and return as a string list
+    //method call to pull the saved data from shared preferences and return as a string list
     private List<String> PullDataFile(String a) {
 
         List<String> rssdata = tinydb.getList(a);

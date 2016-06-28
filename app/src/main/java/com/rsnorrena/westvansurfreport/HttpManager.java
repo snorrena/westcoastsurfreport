@@ -1,30 +1,12 @@
 package com.rsnorrena.westvansurfreport;
 
-/**
- * Created by Admin on 3/30/2015.
- */
-
-import android.content.Context;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.text.format.DateFormat;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import static java.lang.Thread.sleep;
-
 
 public class HttpManager {
-
 
     public static String getData(String uri) {
 

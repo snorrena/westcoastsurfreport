@@ -6,9 +6,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Admin on 4/24/2015.
- */
 public class WindForecast extends Activity {
 
     TextView title1, title2, title3, summary1, summary2;
@@ -30,9 +27,8 @@ public class WindForecast extends Activity {
 
         tdb = new TinyDB(this);
 
-            windforecast = tdb.getList("windforecast");
+        windforecast = tdb.getList("windforecast");
         int recordssaved = tdb.getInt("recordssaved");
-
 
         if (recordssaved != 0) {
             title1.setText(windforecast.get(0));
@@ -41,7 +37,6 @@ public class WindForecast extends Activity {
             summary1.setText(windforecast.get(3));
             summary2.setText(windforecast.get(4));
         }
-
 
     }
 }
