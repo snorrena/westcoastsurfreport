@@ -119,13 +119,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 rssdatalist[0] = halibutBankData;
                 rssdatalist[1] = windData;
 
-                for(RssData datalist:rssdatalist){
-
-                    System.out.println(datalist.toString());
-
-                }
-
-
                 //update the wind report if the parser returns something other than null.
                 if (rssdatalist[1] == null) {
                     Log.d(TAG, "The wind warning report file is null");
@@ -172,8 +165,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                         nextHour = true;
                     }
 
-System.out.println("Old time = " + oldTime);
-System.out.println("New time = " + time);
+                    Log.d(TAG,"Old time = " + oldTime);
+                    Log.d(TAG,"New time = " + time);
 
                     if (!nextHour) {
                         String[] oldHour = oldTime.split(":");

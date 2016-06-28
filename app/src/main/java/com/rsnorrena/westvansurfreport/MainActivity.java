@@ -289,11 +289,7 @@ public class MainActivity extends Activity{
         if (recordssaved > 0){
             updateDisplay();
         }
-        //sets the alarm receiver and updatedisplay service
-//        updateDisplayService();
-//        startMonitor();
-
-    }
+            }
 
     private void stopTheAndroidAlarmMonitor() {
         //cancels the Android alarm
