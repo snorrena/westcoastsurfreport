@@ -45,7 +45,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         context = getApplication();
         //sets the context variable for the application
 
-//        checkLicense();
+        checkLicense();
         //call to the check license method of the LicenseCheckActivity
         //This class activity extends LicenseCheckActivity which is included in the app as a library extention
 

@@ -87,7 +87,6 @@ public class MainActivity extends Activity {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
                 Intent myIntent = new Intent(MainActivity.this, SetUp.class);
-//                myIntent.setFlags(myIntent.FLAG_ACTIVITY_CLEAR_TOP);
                 MainActivity.this.startActivity(myIntent);
                 return true;
         }
