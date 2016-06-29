@@ -1,0 +1,4 @@
+E-mail is currently hardcoded
+Add option to put in e-mail instead of a phone number
+Change code to only send the email/text msg if the surf grade has been met.
+the clear data button does not reset the wind warning blink.
