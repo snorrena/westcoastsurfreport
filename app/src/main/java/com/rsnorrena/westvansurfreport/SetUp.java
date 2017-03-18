@@ -188,18 +188,23 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             spinner_number1.setSelection(1);
         } else if (serviceProviderPhone1.equals("@txt.bell.ca")) {
             spinner_number1.setSelection(2);
-        } else if (serviceProviderPhone1.equals(("@fido.ca"))) {
+        } else if (serviceProviderPhone1.equals("@fido.ca")) {
             spinner_number1.setSelection(3);
-
+        } else if (serviceProviderPhone1.equals("@txt.freedommobile.ca")) {
+            spinner_number1.setSelection(4);
         }
+
+
         if (serviceProviderPhone2.equals("@msg.telus.com")) {
             spinner_number2.setSelection(0);
         } else if (serviceProviderPhone2.equals("@pcs.rogers.com")) {
             spinner_number2.setSelection(1);
         } else if (serviceProviderPhone2.equals("@txt.bell.ca")) {
             spinner_number2.setSelection(2);
-        } else if (serviceProviderPhone2.equals(("@fido.ca"))) {
+        } else if (serviceProviderPhone2.equals("@fido.ca")) {
             spinner_number2.setSelection(3);
+        } else if (serviceProviderPhone2.equals("@txt.freedommobile.ca")) {
+            spinner_number2.setSelection(4);
         }
     }
 
@@ -264,6 +269,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
                     txtMsgAddress1 = phone1 + "@txt.bell.ca";
                 } else if (service_provider_phone1.equals("Fido")) {
                     txtMsgAddress1 = phone1 + "@fido.ca";
+                } else if (service_provider_phone1.equals("Freedom")) {
+                    txtMsgAddress1 = phone1 + "@txt.freedommobile.ca";
                 }
             }
 
@@ -276,6 +283,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
                     txtMsgAddress2 = phone2 + "@txt.bell.ca";
                 } else if (service_provider_phone2.equals("Fido")) {
                     txtMsgAddress2 = phone2 + "@fido.ca";
+                } else if (service_provider_phone2.equals("Freedom")) {
+                    txtMsgAddress2 = phone2 + "@txt.freedommobile.ca";
                 }
             }
 

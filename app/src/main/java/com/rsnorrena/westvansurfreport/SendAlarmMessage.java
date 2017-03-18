@@ -67,7 +67,7 @@ public class SendAlarmMessage {
 //                    String[] toArr = {"snorrena@gmail.com", "snorrena@hotmail.com"};
                     m.set_to(toArr);//call to the set_to method of the Mail obj passed in the toArr array of phone numbers
                     m.set_from(emailaddress);//call to the set_from method in the mail obj passed in the String array list of email addresses
-                    m.set_subject("Surf Report: " + date + ", " + time);//call to the set_subject method
+                    m.set_subject("West Vancouver Surf Report: " + date + ", " + time);//call to the set_subject method
                     String wd = winddirection.replaceAll("[^a-zA-Z0-9()]", "");
                     String emailbody = surfreport + " Current conditions: " + "Wind: " + wd + ", " + windspeed + ", Waves: " + waveheight + " ft. @ " + waveinterval + " second intervals.";
                     m.setBody(emailbody);//call to the set body method passing the e-mail msg

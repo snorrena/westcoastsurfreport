@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
 
         MainActivity.context = getApplicationContext();
         //sets the application context to the variable "context".
-        
+
         //instantiates the buttons on the display
         tb = (ToggleButton) findViewById(R.id.toggleButton);
         wf = (Button) findViewById(R.id.bwindforecast);
@@ -175,7 +175,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 };
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(),R.style.YourDialogStyle);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.YourDialogStyle);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
 
             }
@@ -286,7 +286,7 @@ public class MainActivity extends Activity {
         toggleButtonReset();
     }
 
-    public static void passSoundAlarmObject(SoundAlarm alarm){
+    public static void passSoundAlarmObject(SoundAlarm alarm) {
         soundAlarm = alarm;
     }
 
@@ -294,7 +294,7 @@ public class MainActivity extends Activity {
         tinydb.putBoolean("batterySaverCheck", true);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            if(!pm.isIgnoringBatteryOptimizations(context.getPackageName())){
+            if (!pm.isIgnoringBatteryOptimizations(context.getPackageName())) {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -309,7 +309,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 };
-                AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.YourDialogStyle);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.YourDialogStyle);
                 builder.setMessage("*** Important *** \n\nBattery optimization of this application should be manually deactivated in system settings to allow for continuous background monitoring.\n\nSettings - Battery - Battery Optimization - All apps - West Van Surf Report - Don't optimize\n\nProceed to system settings?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
             }
         }
@@ -494,11 +494,11 @@ public class MainActivity extends Activity {
         //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every ten minutes
         manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
-        }else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
-        manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-        }else{
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        } else {
             manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         }
 
@@ -547,6 +547,7 @@ public class MainActivity extends Activity {
             tinydb.remove("saveddatarecord6");
             tinydb.remove("alarmtriggered");
             tinydb.remove("lastRecordSavedDateAndTime");
+            tinydb.remove("windforecast");
         }
 
         SurfPotentialPercentage();
@@ -1392,7 +1393,7 @@ public class MainActivity extends Activity {
     private void toggleButtonReset() {
         if (tinydb.getBoolean("alarm")) {
             tb.setChecked(true);
-        }else{
+        } else {
             tb.setChecked(false);
         }
     }

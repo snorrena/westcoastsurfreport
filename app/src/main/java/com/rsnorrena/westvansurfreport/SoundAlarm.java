@@ -52,7 +52,7 @@ public class SoundAlarm {
         am.setStreamVolume(AudioManager.STREAM_MUSIC, am.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
 //the sound file is type ogg including a meta tag for android looping because the set looping method does not seem to work
         mp = MediaPlayer.create(context, R.raw.splashsound);
-        mp.setLooping(false);// set to true for loop
+        mp.setLooping(true);// set to true for loop
         mp.start();
         mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
