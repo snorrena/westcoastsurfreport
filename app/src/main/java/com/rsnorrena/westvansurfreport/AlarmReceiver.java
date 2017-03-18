@@ -64,7 +64,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         cal = Calendar.getInstance();
 
-
         if (isOnline()) {//check for internet connectivity
             requestData(datasource);//passed the two xml data sources (html address) into the requestData method
         } else {
@@ -75,7 +74,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
             setNextAlarm(cal);//set next alarm when the network is down.
         }//msg to display if the internet isn't working
-
     }
 
     private void setNextAlarm(Calendar cal) {
@@ -317,36 +315,19 @@ public class AlarmReceiver extends BroadcastReceiver {
                     //reset the boolean if a new data record is added
                     tinydb.putBoolean("newrecordadded", true);
 
-                    //set new alarm here for next hour using setExactAndAllowWileIdle method
-//                    Calendar cal = Calendar.getInstance();
+                    //set new alarm here for next hour.
                     cal.setTimeInMillis(System.currentTimeMillis());
                     cal.roll(Calendar.HOUR_OF_DAY, true);//roll the hour of day forward
                     cal.set(Calendar.MINUTE, 00);//set the minutes to zero
 
                     setNextAlarm(cal);
 
-//                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-//                    String alarmTime = sdf.format(cal.getTime());
-//                    Log.d("Next alarm time: ", alarmTime);
-//
-//                    manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
-//                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-
                 }else{
                     //set new alarm here to check for new record in ten minutes
-//                    Calendar cal = Calendar.getInstance();
                     cal.setTimeInMillis(System.currentTimeMillis());
                     cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
 
                     setNextAlarm(cal);
-
-//                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-//                    String alarmTime = sdf.format(cal.getTime());
-//                    Log.d("Next alarm time: ", alarmTime);
-//
-//                    //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every ten minutes
-//                    manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
-//                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
 
                 }
             }

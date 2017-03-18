@@ -3,8 +3,10 @@ package com.rsnorrena.westvansurfreport;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,22 +26,27 @@ public class SoundAlarm {
 
     public void soundAlarmOn() {
 
-        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener(){
+        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
 
             @Override
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
                     tts.setLanguage(Locale.CANADA);
 
-            int surfGrade = tinydb.getInt("surfgrade");
+                    int surfGrade = tinydb.getInt("surfgrade");
 
                     String surfreport = "The current report for surf potential in West Vancouver is  " + String.valueOf(surfGrade) + " percent.";
                     Log.d(TAG, "TTS called");
 
-                    tts.speak(surfreport, TextToSpeech.QUEUE_FLUSH, null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        tts.speak(surfreport, TextToSpeech.QUEUE_FLUSH, null, null);
+                    } else {
+                        tts.speak(surfreport, TextToSpeech.QUEUE_FLUSH, null);
+                    }
+
                 }
             }
-        } );
+        });
         //code for sounding of the audio alarm
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         am.setStreamVolume(AudioManager.STREAM_MUSIC, am.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
