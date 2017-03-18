@@ -6,8 +6,10 @@ import android.media.MediaPlayer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class SoundAlarm implements TextToSpeech.OnInitListener {
+public class SoundAlarm {
 
     private static final String TAG = SoundAlarm.class.getSimpleName();
     private TinyDB tinydb;
@@ -21,8 +23,23 @@ public class SoundAlarm implements TextToSpeech.OnInitListener {
     }
 
     public void soundAlarmOn() {
-        tinydb.putBoolean("alarmtriggered", true);
-        tts = new TextToSpeech(context, this);
+
+        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener(){
+
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    tts.setLanguage(Locale.CANADA);
+
+            int surfGrade = tinydb.getInt("surfgrade");
+
+                    String surfreport = "The current report for surf potential in West Vancouver is  " + String.valueOf(surfGrade) + " percent.";
+                    Log.d(TAG, "TTS called");
+
+                    tts.speak(surfreport, TextToSpeech.QUEUE_FLUSH, null);
+                }
+            }
+        } );
         //code for sounding of the audio alarm
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         am.setStreamVolume(AudioManager.STREAM_MUSIC, am.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
@@ -36,7 +53,6 @@ public class SoundAlarm implements TextToSpeech.OnInitListener {
                 mp.stop();
                 mp.reset();
                 mp.release();
-                mp = null;
             }
         });
     }
@@ -54,21 +70,6 @@ public class SoundAlarm implements TextToSpeech.OnInitListener {
             mp.release();
             mp = null;
 
-        }
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts.setLanguage(Locale.CANADA);
-
-            int surfgrade = tinydb.getInt("surfgrade");
-            String surfreport;
-
-            surfreport = "The current report for surf potential in West Vancouver is  " + String.valueOf(surfgrade) + " percent.";
-            Log.d(TAG, "TTS called");
-
-            tts.speak(surfreport, TextToSpeech.QUEUE_FLUSH, null);
         }
     }
 }

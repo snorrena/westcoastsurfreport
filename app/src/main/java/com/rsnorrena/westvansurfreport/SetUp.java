@@ -45,7 +45,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
         context = getApplication();
         //sets the context variable for the application
 
-        checkLicense();
+//        checkLicense();
         //call to the check license method of the LicenseCheckActivity
         //This class activity extends LicenseCheckActivity which is included in the app as a library extention
 
@@ -107,7 +107,7 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
                         }
                     }
                 };
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(),R.style.YourDialogStyle);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
 
             }

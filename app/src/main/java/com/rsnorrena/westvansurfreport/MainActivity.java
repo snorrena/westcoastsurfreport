@@ -8,12 +8,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -23,20 +21,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.rsnorrena.westvansurfreport.model.RssData;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.*;
 
 public class MainActivity extends Activity {
 
@@ -82,6 +73,8 @@ public class MainActivity extends Activity {
     private Intent alarmIntent;
     private PendingIntent pendingIntent;
 
+    public static SoundAlarm soundAlarm;
+
     @Override//send user to the setup screen on press of the menu button
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -101,7 +94,7 @@ public class MainActivity extends Activity {
 
         MainActivity.context = getApplicationContext();
         //sets the application context to the variable "context".
-
+        
         //instantiates the buttons on the display
         tb = (ToggleButton) findViewById(R.id.toggleButton);
         wf = (Button) findViewById(R.id.bwindforecast);
@@ -112,22 +105,21 @@ public class MainActivity extends Activity {
         wf.getBackground().setAlpha(64);
         cam.getBackground().setAlpha(64);
         cleardata.getBackground().setAlpha(64);
+        tb.getBackground().setAlpha(64);
 
         tb.setOnClickListener(new View.OnClickListener() {//onclick listener to start/stop the monitoring service
             @Override
             public void onClick(View v) {
                 if (tb.isChecked()) {
-                    tinydb.putBoolean("alarmtriggered", false);
+                    tinydb.putBoolean("alarm", true);
+
                 } else {
-                    //turns off tts and media player
-                    SoundAlarm soundAlarm = new SoundAlarm();
-                    soundAlarm.alarmOff();
-
-                    Toast toast = Toast.makeText(MainActivity.this, "Alarm Cancelled", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();//display msg confirming cancellation of the alarm
-
+                    if (soundAlarm != null) {
+                        soundAlarm.alarmOff();
+                    }
+                    tinydb.putBoolean("alarm", false);
                 }
+                Log.d("toggle button boolean", String.valueOf(tinydb.getBoolean("alarm")));
             }
         });
 
@@ -170,6 +162,9 @@ public class MainActivity extends Activity {
                                 tinydb.remove("alarmtriggered");
                                 tinydb.remove("lastRecordSavedDateAndTime");
 
+                                tinydb.remove("windforecast");
+                                tinydb.remove("batterySaverCheck");
+
                                 stopTheAndroidAlarmMonitor();
 
                                 updateDisplay();//custom method to update the displayARM_SERVICE);
@@ -180,7 +175,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 };
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(),R.style.YourDialogStyle);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
 
             }
@@ -287,6 +282,36 @@ public class MainActivity extends Activity {
         Log.d(TAG, String.valueOf(recordssaved));
         if (recordssaved > 0) {
             updateDisplay();
+        }
+        toggleButtonReset();
+    }
+
+    public static void passSoundAlarmObject(SoundAlarm alarm){
+        soundAlarm = alarm;
+    }
+
+    private void checkForBatterySaver() {
+        tinydb.putBoolean("batterySaverCheck", true);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+            if(!pm.isIgnoringBatteryOptimizations(context.getPackageName())){
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+
+                                startActivity(new Intent(Settings.ACTION_SETTINGS));
+
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+                AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.YourDialogStyle);
+                builder.setMessage("*** Important *** \n\nBattery optimization of this application should be manually deactivated in system settings to allow for continuous background monitoring.\n\nSettings - Battery - Battery Optimization - All apps - West Van Surf Report - Don't optimize\n\nProceed to system settings?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
+            }
         }
     }
 
@@ -459,29 +484,38 @@ public class MainActivity extends Activity {
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
-        int hourofday = cal.get(Calendar.HOUR_OF_DAY);
-
-        //the alarm start time is set to the hour for sake of the check on the time stamp of the datafeed file.
-        cal.set(Calendar.HOUR_OF_DAY, hourofday);
-        cal.set(Calendar.MINUTE, 00);
+        cal.add(Calendar.SECOND, 10);
+//        cal.roll(Calendar.MINUTE, 5);//use the check how the app works in doze mode.
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        String currenttime = sdf.format(cal.getTime());
-        Log.d("Start time", currenttime);
+        String alarmTime = sdf.format(cal.getTime());
+        Log.d("Alarm set: ", alarmTime);
 
-        //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every twenty minutes
+        //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every ten minutes
         manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
-        int interval = 1000 * 60 * 10;//set the time interval for run of the alarm service code
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, pendingIntent);//set of a repeating alarm
 
-        Toast toast = Toast.makeText(MainActivity.this, "Alarm Set", Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();//msg indicating that the alarm has been set
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
+        }else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+        manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        }else{
+            manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        }
+
+//        Toast toast = Toast.makeText(MainActivity.this, "Monitor On", Toast.LENGTH_SHORT);
+//        toast.setGravity(Gravity.CENTER, 0, 0);
+//        toast.show();//msg indicating that the alarm has been set
     }
 
     public void updateDisplay() {
 
         Log.d(TAG, "update display called");
+
+        toggleButtonReset();
+
+        if (!tinydb.getBoolean("batterySaverCheck")) {
+            checkForBatterySaver();//function to check if doze mode is set from the app in android os >= Marshmallo
+        }
 
         Date currentDateAndTime = new Date(System.currentTimeMillis());
 
@@ -524,7 +558,6 @@ public class MainActivity extends Activity {
         }
 
         WindWarningCheck();
-        ToggleButtonReset();
 
 //clear of all text fields. Not sure why typeface is reset to normal
         tvd1.setText("");
@@ -1356,8 +1389,10 @@ public class MainActivity extends Activity {
     }
 
 
-    private void ToggleButtonReset() {
-        if (tinydb.getBoolean("alarmtriggered")) {
+    private void toggleButtonReset() {
+        if (tinydb.getBoolean("alarm")) {
+            tb.setChecked(true);
+        }else{
             tb.setChecked(false);
         }
     }
@@ -1366,7 +1401,7 @@ public class MainActivity extends Activity {
         if (!blink) {
             blink = true;
             Log.d(TAG, "The blink loop is started");
-            //new thread to cause the headline to blink if there is a strong windwarding in the forecast.
+            //new thread to cause the headline to blink if there is a strong wind warning in the forecast.
             new Thread(new Runnable() {
 
                 @Override

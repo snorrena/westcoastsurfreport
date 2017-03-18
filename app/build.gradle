@@ -9,12 +9,12 @@ android {
             storePassword '1Tabbynorwvs'
         }
     }
-    compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "com.rsnorrena.westvansurfreport"
-        minSdkVersion 15
-        targetSdkVersion 19
+        minSdkVersion 19
+        targetSdkVersion 23
         versionCode 7
         versionName '7'
         signingConfig signingConfigs.westvansurfreport
@@ -35,10 +35,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:21.0.3'
     compile files('libs/jsoup-1.8.1.jar')
     compile files('libs/activation.jar')
     compile files('libs/mail.jar')
-    compile project(':LicenseVerificationLibrary')
     compile files('libs/additionnal.jar')
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile project(':lvl')
 }

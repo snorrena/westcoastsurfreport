@@ -1,16 +1,24 @@
 package com.rsnorrena.westvansurfreport;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
 import com.rsnorrena.westvansurfreport.model.RssData;
 import com.rsnorrena.westvansurfreport.parsers.RssXMLParser;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -38,18 +46,53 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     Context PassedContext;//context variable declaration to hold the contect passed into the onReceive method
 
+    //intent to be used for set and run of the alarm monitoring service
+    private AlarmManager manager;
+    private Intent alarmIntent;
+    private PendingIntent pendingIntent;
+    private Calendar cal;
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
         PassedContext = context;//assign the passed in context the the declared context PassedContext
         Log.d(TAG, "On receive called");
 
+        //for set of the next alarm
+        alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
+        pendingIntent = PendingIntent.getBroadcast(PassedContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        cal = Calendar.getInstance();
+
+
         if (isOnline()) {//check for internet connectivity
             requestData(datasource);//passed the two xml data sources (html address) into the requestData method
         } else {
             Toast.makeText(PassedContext, "Network isn't available", Toast.LENGTH_LONG).show();
+            Log.d(TAG, "The network isn't available!");
+
+            cal.setTimeInMillis(System.currentTimeMillis());
+            cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
+            setNextAlarm(cal);//set next alarm when the network is down.
         }//msg to display if the internet isn't working
 
+    }
+
+    private void setNextAlarm(Calendar cal) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        String alarmTime = sdf.format(cal.getTime());
+        Log.d("Next alarm time: ", alarmTime);
+
+        manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
+        }else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        }else{
+            manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        }
     }
 
     private void requestData(String[] uri) {//method receives the variable containing the two uri sources
@@ -230,6 +273,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                         tinydb.putInt("recordssaved", 6);
                     }
+                    retaineddatarecord.clear();
 
                     //saves the currentdatafeed into app prefs using the key value assigned to saveddatarecord
                     tinydb.putList(saveddatarecord, currentdatafeed);
@@ -240,12 +284,23 @@ public class AlarmReceiver extends BroadcastReceiver {
                     int surfgrade = tinydb.getInt("surfgrade");
                     int surfgradealarm = tinydb.getInt("surfgradealarm");
                     boolean sendtextmessage = tinydb.getBoolean("sendtextmessage");
-                    boolean alarmtriggered = tinydb.getBoolean("alarmtriggered");
+                    boolean alarm = tinydb.getBoolean("alarm");
 
                     //Sound of alarm if conditions met
-                    if (!alarmtriggered && surfgrade >= surfgradealarm) {
-                        SoundAlarm soundAlarm = new SoundAlarm();
+                    if (alarm && surfgrade >= surfgradealarm) {
+                        final SoundAlarm soundAlarm = new SoundAlarm();
                         soundAlarm.soundAlarmOn();
+
+                        //using a handler to pass the soundAlarm obj to the main UI to allow for shut down via the toggle button.
+                        Handler mainHandler = new Handler(PassedContext.getMainLooper());
+                        Runnable myRunnable = new Runnable(){
+
+                            @Override
+                            public void run() {
+                                MainActivity.passSoundAlarmObject(soundAlarm);
+                            }
+                        };
+                        mainHandler.post(myRunnable);
                     }
 
                     //send e-mails/text messages if the option is selected in app settings and the surf grade has been reached.
@@ -258,10 +313,41 @@ public class AlarmReceiver extends BroadcastReceiver {
                         sndmsg.sendEmailMessage();
                     }
 
-
                     currentdatafeed.clear();
                     //reset the boolean if a new data record is added
                     tinydb.putBoolean("newrecordadded", true);
+
+                    //set new alarm here for next hour using setExactAndAllowWileIdle method
+//                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    cal.roll(Calendar.HOUR_OF_DAY, true);//roll the hour of day forward
+                    cal.set(Calendar.MINUTE, 00);//set the minutes to zero
+
+                    setNextAlarm(cal);
+
+//                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+//                    String alarmTime = sdf.format(cal.getTime());
+//                    Log.d("Next alarm time: ", alarmTime);
+//
+//                    manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+//                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+
+                }else{
+                    //set new alarm here to check for new record in ten minutes
+//                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
+
+                    setNextAlarm(cal);
+
+//                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+//                    String alarmTime = sdf.format(cal.getTime());
+//                    Log.d("Next alarm time: ", alarmTime);
+//
+//                    //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every ten minutes
+//                    manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+//                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
+
                 }
             }
         }
