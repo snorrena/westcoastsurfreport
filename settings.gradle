@@ -1,3 +1,2 @@
-include ':app'
+include ':app', ':lvl_library'
 
-include ':lvl'

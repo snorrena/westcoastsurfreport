@@ -547,7 +547,6 @@ public class MainActivity extends Activity {
             tinydb.remove("saveddatarecord6");
             tinydb.remove("alarmtriggered");
             tinydb.remove("lastRecordSavedDateAndTime");
-            tinydb.remove("windforecast");
         }
 
         SurfPotentialPercentage();
