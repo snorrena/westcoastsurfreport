@@ -26,11 +26,12 @@ public class SurfConditionsCheck {
                 String x = "saveddatarecord" + String.valueOf(i);
                 retrieveddatarecord = tinydb.getList(x);
 
-                String winddirection = retrieveddatarecord.get(2);
+//                String winddirection = retrieveddatarecord.get(2);
                 String windspeed = retrieveddatarecord.get(3);
                 String waveheight = retrieveddatarecord.get(4);
 
-                int winddirectiondegrees = Integer.valueOf(winddirection.replaceAll("[^0-9]", ""));
+//                int winddirectiondegrees = Integer.valueOf(winddirection.replaceAll("[^0-9]", ""));
+                int winddirectiondegrees = Integer.valueOf(retrieveddatarecord.get(6));
                 float numericwindspeed = Float.valueOf(windspeed.replaceAll("[^0-9.]", ""));
                 float windsp = Float.valueOf(numericwindspeed);
                 float numericwaveheight = Float.valueOf(waveheight.replaceAll("[^0-9.]", ""));

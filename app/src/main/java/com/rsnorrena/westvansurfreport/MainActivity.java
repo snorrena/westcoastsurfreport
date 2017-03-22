@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,8 +164,24 @@ public class MainActivity extends Activity {
                                 tinydb.remove("alarmtriggered");
                                 tinydb.remove("lastRecordSavedDateAndTime");
 
-                                tinydb.remove("windforecast");
                                 tinydb.remove("batterySaverCheck");
+
+                                //collect Halibut Bank data from the web
+                                Thread t = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JsoupWebScrape webScrape = new JsoupWebScrape(context);
+                                        webScrape.scrapeHalibutBankData();
+                                    }
+                                });
+                                t.start();
+                                try {
+                                    t.join();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+//        }
 
                                 stopTheAndroidAlarmMonitor();
 
@@ -534,8 +552,8 @@ public class MainActivity extends Activity {
         long diffInMillies = currentDateAndTime.getTime() - lastRecordSavedDate.getTime();
         long hourDiff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
         Log.d(TAG, "Time span between records: " + hourDiff + " hours");
-        //if the time span between the last saved record and the current time is greater than 2 hours reset all data.
-        if (hourDiff > 2) {
+        //if the time span between the last saved record and the current time is greater than 1 hours reset all data.
+        if (hourDiff > 1) {
             tinydb.remove("windforecast");
             tinydb.putInt("surfgrade", 0);
             tinydb.putInt("recordssaved", 0);
@@ -547,6 +565,22 @@ public class MainActivity extends Activity {
             tinydb.remove("saveddatarecord6");
             tinydb.remove("alarmtriggered");
             tinydb.remove("lastRecordSavedDateAndTime");
+
+            //refresh Halibut Bank data from the web
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    JsoupWebScrape webScrape = new JsoupWebScrape(context);
+                    webScrape.scrapeHalibutBankData();
+                }
+            });
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }
 
         SurfPotentialPercentage();

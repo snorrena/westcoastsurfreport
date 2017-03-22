@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
+
 public class Splash extends Activity {
 
     public static Context context;
@@ -30,6 +32,31 @@ public class Splash extends Activity {
         //initializes the preferences database for this app
         appsettings = tdb_splash.getBoolean("appsettings");
         //check of the preferences database to determine if the app settinhgs have been saved
+
+        int recordCount;
+        try {
+            recordCount = tdb_splash.getInt("recordssaved");
+        } catch (Exception e) {
+            recordCount = 0;
+            e.printStackTrace();
+        }
+
+        //collect Halibut Bank data from the web if record count is less than 6
+        if (recordCount < 6) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    JsoupWebScrape webScrape = new JsoupWebScrape(context);
+                    webScrape.scrapeHalibutBankData();
+                }
+            });
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
 
         Thread timer = new Thread() {

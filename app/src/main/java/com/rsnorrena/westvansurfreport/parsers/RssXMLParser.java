@@ -80,6 +80,7 @@ public class RssXMLParser {
                                         //used a for loop to output the index number and token in order to identify the token items of interest
 
                                         String date = tokens[0] + " " + tokens[1] + " " + tokens[2];
+                                        Log.d(TAG, date);
                                         String time = tokens[3] + " " + tokens[4];
                                         String winddirection = tokens[11] + " " + tokens[12];
                                         String windspeed = tokens[15] + " " + tokens[16];
