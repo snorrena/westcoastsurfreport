@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 
     //initialization of class variables (highlighted purple)
     private ToggleButton tb;
-    private Button wf, cam, cleardata;
+    private Button wf, cam, stop;
 
     //tag to be used in logs
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -101,12 +101,12 @@ public class MainActivity extends Activity {
         tb = (ToggleButton) findViewById(R.id.toggleButton);
         wf = (Button) findViewById(R.id.bwindforecast);
         cam = (Button) findViewById(R.id.bcam);
-        cleardata = (Button) findViewById(R.id.bcleardata);
+        stop = (Button) findViewById(R.id.bcleardata);
 
         //sets the alpha on the buttons to show through to the background image
         wf.getBackground().setAlpha(64);
         cam.getBackground().setAlpha(64);
-        cleardata.getBackground().setAlpha(64);
+        stop.getBackground().setAlpha(64);
         tb.getBackground().setAlpha(64);
 
         tb.setOnClickListener(new View.OnClickListener() {//onclick listener to start/stop the monitoring service
@@ -141,7 +141,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        cleardata.setOnClickListener(new View.OnClickListener() {//onclick listener for the clear data button
+        stop.setOnClickListener(new View.OnClickListener() {//onclick listener for the clear data button
 
             @Override
             public void onClick(View v) {
@@ -164,28 +164,12 @@ public class MainActivity extends Activity {
                                 tinydb.remove("alarmtriggered");
                                 tinydb.remove("lastRecordSavedDateAndTime");
 
-                                tinydb.remove("batterySaverCheck");
-
-                                //collect Halibut Bank data from the web
-                                Thread t = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        JsoupWebScrape webScrape = new JsoupWebScrape(context);
-                                        webScrape.scrapeHalibutBankData();
-                                    }
-                                });
-                                t.start();
-                                try {
-                                    t.join();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-//        }
+//                                tinydb.remove("batterySaverCheck");//only query on first run
 
                                 stopTheAndroidAlarmMonitor();
 
-                                updateDisplay();//custom method to update the displayARM_SERVICE);
+                                finish();
+
 
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -340,9 +324,6 @@ public class MainActivity extends Activity {
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         manager.cancel(pendingIntent);
         pendingIntent.cancel();
-
-        //resets the Android alarm.
-        startTheAlarmMonitor();
     }
 
     public static boolean isActivityVisible() {
@@ -519,13 +500,10 @@ public class MainActivity extends Activity {
         } else {
             manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         }
-
-//        Toast toast = Toast.makeText(MainActivity.this, "Monitor On", Toast.LENGTH_SHORT);
-//        toast.setGravity(Gravity.CENTER, 0, 0);
-//        toast.show();//msg indicating that the alarm has been set
     }
 
     public void updateDisplay() {
+
 
         Log.d(TAG, "update display called");
 
@@ -570,17 +548,20 @@ public class MainActivity extends Activity {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    tinydb.putBoolean("webScrapeComplete", false);
                     JsoupWebScrape webScrape = new JsoupWebScrape(context);
                     webScrape.scrapeHalibutBankData();
                 }
             });
             t.start();
+        }
+
+        while (!tinydb.getBoolean("webScrapeComplete")) {//pause until the webscrape is complete before updating the display.
             try {
-                t.join();
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
 
         SurfPotentialPercentage();

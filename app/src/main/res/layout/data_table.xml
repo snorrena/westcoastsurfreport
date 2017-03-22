@@ -1733,12 +1733,12 @@
                 android:textColor="#ffffffff" />
 
             <Button
+                android:id="@+id/bcleardata"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reset"
-                android:id="@+id/bcleardata"
                 android:layout_marginLeft="10dp"
+                android:text="Stop"
                 android:textColor="#ffffffff" />
 
         </LinearLayout>

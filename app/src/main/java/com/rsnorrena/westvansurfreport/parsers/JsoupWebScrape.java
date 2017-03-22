@@ -237,12 +237,6 @@ public class JsoupWebScrape {
 
                         currentdatafeed.clear();
 
-                        ArrayList<String> data = tb.getList(recordKey);
-                        for (String r : data) {
-                            Log.d(TAG, String.valueOf(recordNumber));
-                            Log.d(TAG, r + ", ");
-                        }
-
                     }//end of if statement
                     --recordNumber;
 
@@ -266,6 +260,7 @@ public class JsoupWebScrape {
             Long dateInLong = d.getTime();
 
             tb.putLong("lastRecordSavedDateAndTime", dateInLong);//saves the timestamp of the 5th record in the database.
+            tb.putBoolean("webScrapeComplete", true);
 
         } catch (IOException e) {
             e.printStackTrace();

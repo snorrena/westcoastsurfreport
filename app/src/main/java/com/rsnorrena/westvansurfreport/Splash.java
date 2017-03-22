@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
 
@@ -41,21 +43,19 @@ public class Splash extends Activity {
             e.printStackTrace();
         }
 
+        tdb_splash.putBoolean("webScrapeComplete", true);
+
         //collect Halibut Bank data from the web if record count is less than 6
         if (recordCount < 6) {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    tdb_splash.putBoolean("webScrapeComplete", false);
                     JsoupWebScrape webScrape = new JsoupWebScrape(context);
                     webScrape.scrapeHalibutBankData();
                 }
             });
             t.start();
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
 
 
@@ -65,6 +65,14 @@ public class Splash extends Activity {
             public void run() {
 
                 try {
+                    while (!tdb_splash.getBoolean("webScrapeComplete")) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     sleep(3000);//pause the app for three seconds
                 } catch (InterruptedException e) {
                     e.printStackTrace();
