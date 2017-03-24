@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     private String numerictime = "";
     private String numericwindspeed = "";
     private Float numericwaveheight = 0.0f;
-    private int recordssaved = 0;
+    private int recordssaved;
 
     //Declaration of textfields in the main screen layout
     private TextView tvd1, tvd2, tvd3, tvd5, tvd6, tvd7, tvd8, tvd9, tvd10, tvd11, tvd12, tvd13, tvd14, tvd16;
@@ -114,7 +114,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (tb.isChecked()) {
                     tinydb.putBoolean("alarm", true);
-
                 } else {
                     if (soundAlarm != null) {
                         soundAlarm.alarmOff();
@@ -280,13 +279,21 @@ public class MainActivity extends Activity {
 
 //call to update the display if there is at least one record saved in the preferences database
         tinydb = new TinyDB(context);
-        recordssaved = tinydb.getInt("recordssaved");
+        try {
+            recordssaved = tinydb.getInt("recordssaved");
+        } catch (Exception e) {
+            recordssaved = 0;
+            e.printStackTrace();
+        }
         Log.d(TAG, String.valueOf(recordssaved));
         if (recordssaved > 0) {
             updateDisplay();
         }
         toggleButtonReset();
-    }
+
+        startMonitor();//set and alarm if there is one already scheduled.
+
+    }//end of onCreate
 
     public static void passSoundAlarmObject(SoundAlarm alarm) {
         soundAlarm = alarm;
@@ -462,6 +469,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause called");
         MainActivity.activityPaused();
     }
 
@@ -471,9 +479,7 @@ public class MainActivity extends Activity {
 
         if (!androidAlarmSet) {
             startTheAlarmMonitor();
-            Log.d(TAG, "The Android alarm has been set");
         } else {
-            Log.d(TAG, "The Android alarm is already set");
         }
     }
 
@@ -565,9 +571,7 @@ public class MainActivity extends Activity {
         }
 
         SurfPotentialPercentage();
-        Log.d(TAG, "The blink boolean is set " + blink);
 
-        Log.d(TAG, "wind warning label reset to visible if blink is false");
         if (!blink) {
             setWindWarningVisible();
         }
@@ -1415,7 +1419,6 @@ public class MainActivity extends Activity {
     private void blink() {
         if (!blink) {
             blink = true;
-            Log.d(TAG, "The blink loop is started");
             //new thread to cause the headline to blink if there is a strong wind warning in the forecast.
             new Thread(new Runnable() {
 
@@ -1439,10 +1442,7 @@ public class MainActivity extends Activity {
 
                             Thread.sleep(2000);
                         }
-                        Log.d(TAG, "The blink loop is terminated.");
                         blink = false;
-                        Log.d(TAG, "The blink boolean is set " + blink);
-                        //method call to set the windwarning to visible at termination of the blink code.
 
                     } catch (InterruptedException e) {
                         e.printStackTrace();
