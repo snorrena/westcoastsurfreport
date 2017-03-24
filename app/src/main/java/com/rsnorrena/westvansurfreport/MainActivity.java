@@ -21,15 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity {
 
@@ -68,7 +64,7 @@ public class MainActivity extends Activity {
     private static boolean activityVisible, serviceStarted, blink;
 
     public static Context context;
-    //the public static context should be avaiable to all classes in the application
+    //the public static context should be available to all classes in the application
 
     //intent to be used for set and run of the alarm monitoring service
     private AlarmManager manager;
@@ -90,12 +86,15 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.data_table);
         //sets the display as per the layout data_table
 
         MainActivity.context = getApplicationContext();
         //sets the application context to the variable "context".
+
+        tinydb = new TinyDB(context);
 
         //instantiates the buttons on the display
         tb = (ToggleButton) findViewById(R.id.toggleButton);
@@ -120,7 +119,6 @@ public class MainActivity extends Activity {
                     }
                     tinydb.putBoolean("alarm", false);
                 }
-                Log.d("toggle button boolean", String.valueOf(tinydb.getBoolean("alarm")));
             }
         });
 
@@ -168,7 +166,6 @@ public class MainActivity extends Activity {
                                 stopTheAndroidAlarmMonitor();
 
                                 finish();
-
 
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -276,22 +273,15 @@ public class MainActivity extends Activity {
 
         alertwindwarning = (TextView) findViewById(R.id.tvwindwarning);
 
-
-//call to update the display if there is at least one record saved in the preferences database
-        tinydb = new TinyDB(context);
-        try {
-            recordssaved = tinydb.getInt("recordssaved");
-        } catch (Exception e) {
-            recordssaved = 0;
-            e.printStackTrace();
-        }
-        Log.d(TAG, String.valueOf(recordssaved));
-        if (recordssaved > 0) {
-            updateDisplay();
-        }
         toggleButtonReset();
 
-        startMonitor();//set and alarm if there is one already scheduled.
+        updateDisplay();
+
+        checkOnReceiveTrigger();//set and alarm if there is one already scheduled.
+
+        if (!tinydb.getBoolean("batterySaverCheck")) {
+            checkForBatterySaver();//function to check if doze mode is set from the app in android os >= Marshmallo
+        }
 
     }//end of onCreate
 
@@ -420,7 +410,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void SurfPotentialPercentage() {
+    private void surfPotentialPercentage() {
         int sg = 0;
         try {
             sg = tinydb.getInt("surfgrade");
@@ -447,9 +437,9 @@ public class MainActivity extends Activity {
         super.onResume();
         Log.d(TAG, "onResume called");
         MainActivity.activityResumed();
-        startMonitor();
         updateDisplayService();
-        updateDisplay();
+//        checkOnReceiveTrigger();
+//        updateDisplay();
     }
 
     @Override
@@ -473,17 +463,19 @@ public class MainActivity extends Activity {
         MainActivity.activityPaused();
     }
 
-    public void startMonitor() {
+    public void checkOnReceiveTrigger() {
 
         boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this, 0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
 
         if (!androidAlarmSet) {
-            startTheAlarmMonitor();
-        } else {
+
+            setOnReceiveTrigger();
+
         }
     }
 
-    private void startTheAlarmMonitor() {
+    private void setOnReceiveTrigger() {
+
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -510,67 +502,9 @@ public class MainActivity extends Activity {
 
     public void updateDisplay() {
 
-
         Log.d(TAG, "update display called");
 
-        toggleButtonReset();
-
-        if (!tinydb.getBoolean("batterySaverCheck")) {
-            checkForBatterySaver();//function to check if doze mode is set from the app in android os >= Marshmallo
-        }
-
-        Date currentDateAndTime = new Date(System.currentTimeMillis());
-
-        //retrieve the date time of the last saved record and compare to current time.
-        Date lastRecordSavedDate = null;
-        try {
-            Long dateInLong = tinydb.getLong("lastRecordSavedDateAndTime");
-            lastRecordSavedDate = new Date(dateInLong);
-            Log.d(TAG, "Last record saved date: " + lastRecordSavedDate.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(TAG, "No calendar records saved as of yet");
-            lastRecordSavedDate = currentDateAndTime;
-        }
-
-        long diffInMillies = currentDateAndTime.getTime() - lastRecordSavedDate.getTime();
-        long hourDiff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
-        Log.d(TAG, "Time span between records: " + hourDiff + " hours");
-        //if the time span between the last saved record and the current time is greater than 1 hours reset all data.
-        if (hourDiff > 1) {
-            tinydb.remove("windforecast");
-            tinydb.putInt("surfgrade", 0);
-            tinydb.putInt("recordssaved", 0);
-            tinydb.remove("saveddatarecord1");
-            tinydb.remove("saveddatarecord2");
-            tinydb.remove("saveddatarecord3");
-            tinydb.remove("saveddatarecord4");
-            tinydb.remove("saveddatarecord5");
-            tinydb.remove("saveddatarecord6");
-            tinydb.remove("alarmtriggered");
-            tinydb.remove("lastRecordSavedDateAndTime");
-
-            //refresh Halibut Bank data from the web
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    tinydb.putBoolean("webScrapeComplete", false);
-                    JsoupWebScrape webScrape = new JsoupWebScrape(context);
-                    webScrape.scrapeHalibutBankData();
-                }
-            });
-            t.start();
-        }
-
-        while (!tinydb.getBoolean("webScrapeComplete")) {//pause until the webscrape is complete before updating the display.
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        SurfPotentialPercentage();
+        surfPotentialPercentage();
 
         if (!blink) {
             setWindWarningVisible();
@@ -578,7 +512,7 @@ public class MainActivity extends Activity {
 
         WindWarningCheck();
 
-//clear of all text fields. Not sure why typeface is reset to normal
+        //clear of all text fields. Not sure why typeface is reset to normal
         tvd1.setText("");
         tvd1.setTypeface(null, Typeface.NORMAL);
         tvd2.setText("");
@@ -741,10 +675,9 @@ public class MainActivity extends Activity {
         tvi16.setText("");
         tvi16.setTypeface(null, Typeface.NORMAL);
 
-
         int recordssaved = tinydb.getInt("recordssaved");
 
-//start of code to loop through records saved and output to the display screen
+        //start of code to loop through records saved and output to the display screen
         int i = 0;
         boolean gooddata = true;
 
@@ -1395,9 +1328,9 @@ public class MainActivity extends Activity {
             if (i > recordssaved) {
                 gooddata = false;
             }
-        }
+        }//end of while loop through good data
 
-    }
+    }//end of updateDisplay
 
     private float tryParseFloat(String y) {
         try {

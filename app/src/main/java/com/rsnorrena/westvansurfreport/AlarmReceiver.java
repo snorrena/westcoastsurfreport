@@ -11,9 +11,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.Toast;
+
 import com.rsnorrena.westvansurfreport.model.RssData;
+import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
 import com.rsnorrena.westvansurfreport.parsers.RssXMLParser;
 
 import java.text.SimpleDateFormat;
@@ -44,7 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     //two xml data sources used in the app for wind forecast and Halibut Bank live data.
     String[] datasource = {"http://www.ndbc.noaa.gov/data/latest_obs/46146.rss", "https://weather.gc.ca/rss/marine/14300_e.xml"};
 
-    Context PassedContext;//context variable declaration to hold the contect passed into the onReceive method
+    Context context;//context variable declaration to hold the contect passed into the onReceive method
 
     //intent to be used for set and run of the alarm monitoring service
     private AlarmManager manager;
@@ -55,23 +56,23 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        PassedContext = context;//assign the passed in context the the declared context PassedContext
+        this.context = context;//assign the passed in context the the declared context context
         Log.d(TAG, "On receive called");
 
         //for set of the next alarm
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
-        pendingIntent = PendingIntent.getBroadcast(PassedContext, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(this.context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         cal = Calendar.getInstance();
 
         if (isOnline()) {//check for internet connectivity
             requestData(datasource);//passed the two xml data sources (html address) into the requestData method
         } else {
-            Toast.makeText(PassedContext, "Network isn't available", Toast.LENGTH_LONG).show();
+            Toast.makeText(this.context, "Network isn't available", Toast.LENGTH_LONG).show();
             Log.d(TAG, "The network isn't available!");
 
             cal.setTimeInMillis(System.currentTimeMillis());
-            cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
+            cal.add(Calendar.MINUTE, 10);//adda ten minutes to the current time.
             setNextAlarm(cal);//set next alarm when the network is down.
         }//msg to display if the internet isn't working
     }
@@ -82,13 +83,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         String alarmTime = sdf.format(cal.getTime());
         Log.d("Next alarm time: ", alarmTime);
 
-        manager = (AlarmManager) PassedContext.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
-        }else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-        }else{
+        } else {
             manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         }
     }
@@ -100,7 +101,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     protected boolean isOnline() {
 
-        ConnectivityManager cm = (ConnectivityManager) PassedContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
             return true;
@@ -133,7 +134,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         @Override
         protected void onPostExecute(String[] result) {
 
-            tinydb = new TinyDB(PassedContext);
+            tinydb = new TinyDB(context);
             int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
 
             //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
@@ -172,47 +173,65 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
 
             //update the Halibut Bank data if the parser returns something other than null.
-            boolean nextHour = false;
             if (rssdatalist[0] == null) {
+
                 Log.d(TAG, "The Halibut Bank report file is null");
+
             } else {
+
                 int newH, oldH;
                 RssData rssdata = rssdatalist[0];//data obj containing information from the Halibut bank xml file.
                 time = rssdata.getTime();
 
-                //The oldTime will not exist on first run.
-                try {
-                    List<String> lastRecordTime = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
-                    oldTime = lastRecordTime.get(1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    oldTime = "not set";
-                    nextHour = true;
-                }
+                List<String> lastRecordTime = tinydb.getList("saveddatarecord" + String.valueOf(recordssaved));
+                oldTime = lastRecordTime.get(1);
 
                 Log.d(TAG, "Old time = " + oldTime);
                 Log.d(TAG, "New time = " + time);
 
-                if (!nextHour) {
-                    String[] oldHour = oldTime.split(":");
-                    oldH = Integer.parseInt(oldHour[0]);
-                    String[] newHour = time.split(":");
-                    newH = Integer.parseInt(newHour[0]);
+                String[] oldHour = oldTime.split(":");
+                oldH = Integer.parseInt(oldHour[0]);
+                String[] newHour = time.split(":");
+                newH = Integer.parseInt(newHour[0]);
 
-                    if (oldH == 23 && newH == 0) {
+                boolean nextHour = false;
+
+                if (oldH == 23 && newH == 0) {
+
+                    nextHour = true;
+
+                } else if (newH > oldH) {
+
+                    if (newH - oldH > 1) {//if the new record hour is greater by more than one hour refresh data.
+
+                        //refresh Halibut Bank data from the web
+                        Thread t = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tinydb.putBoolean("webScrapeComplete", false);
+                                JsoupWebScrape webScrape = new JsoupWebScrape(context);
+                                webScrape.scrapeHalibutBankData();
+                            }
+                        });
+                        t.start();
+                        try {
+                            t.join();//use join to complete thread before continuing.
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
                         nextHour = true;
-                    } else if (newH > oldH) {
+
+                    } else {
+
                         nextHour = true;
+
                     }
+
                 }
 
                 //Only add the record if the time stamp is new.
                 if (nextHour) {
-
-                    Date d = new Date(System.currentTimeMillis());
-                    Long dateInLong = d.getTime();
-
-                    tinydb.putLong("lastRecordSavedDateAndTime", dateInLong);
 
                     //code to extract and save the halibut bank data
                     date = rssdata.getDate();
@@ -276,6 +295,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     //saves the currentdatafeed into app prefs using the key value assigned to saveddatarecord
                     tinydb.putList(saveddatarecord, currentdatafeed);
 
+                    currentdatafeed.clear();
+
+                    //set the boolean for a new data record added.
+                    tinydb.putBoolean("newrecordadded", true);
+
                     //execute code to check the saved surf condition data and assign a %surfscore value and save to the database
                     SurfConditionsCheck.SurfScore();
 
@@ -290,8 +314,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                         soundAlarm.soundAlarmOn();
 
                         //using a handler to pass the soundAlarm obj to the main UI to allow for shut down via the toggle button.
-                        Handler mainHandler = new Handler(PassedContext.getMainLooper());
-                        Runnable myRunnable = new Runnable(){
+                        Handler mainHandler = new Handler(context.getMainLooper());
+                        Runnable myRunnable = new Runnable() {
 
                             @Override
                             public void run() {
@@ -311,10 +335,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                         sndmsg.sendEmailMessage();
                     }
 
-                    currentdatafeed.clear();
-                    //reset the boolean if a new data record is added
-                    tinydb.putBoolean("newrecordadded", true);
-
                     //set new alarm here for next hour.
                     cal.setTimeInMillis(System.currentTimeMillis());
                     cal.roll(Calendar.HOUR_OF_DAY, true);//roll the hour of day forward
@@ -322,10 +342,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                     setNextAlarm(cal);
 
-                }else{
+                } else {
                     //set new alarm here to check for new record in ten minutes
                     cal.setTimeInMillis(System.currentTimeMillis());
-                    cal.add(Calendar.MINUTE,10);//adda ten minutes to the current time.
+                    cal.add(Calendar.MINUTE, 10);//adda ten minutes to the current time.
 
                     setNextAlarm(cal);
 

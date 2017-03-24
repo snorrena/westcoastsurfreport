@@ -76,10 +76,10 @@ public class SendAlarmMessage {
 //                    m.addAttachment("/sdcard/filelocation");
 
                         if (m.send()) {//call the the mail obj send method.
-//                                    Toast.makeText(PassedContext, "Email was sent successfully.", Toast.LENGTH_LONG).show();
+//                                    Toast.makeText(context, "Email was sent successfully.", Toast.LENGTH_LONG).show();
                             Log.d("Email thread", "Msg sent");
                         } else {
-//                                    Toast.makeText(PassedContext, "Email was not sent.", Toast.LENGTH_LONG).show();
+//                                    Toast.makeText(context, "Email was not sent.", Toast.LENGTH_LONG).show();
                             Log.d("Email thread", "Msg not sent");
                         }
                     } catch (Exception e) {
