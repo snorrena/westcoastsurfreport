@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -175,7 +176,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 };
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.YourDialogStyle);
+                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(v.getContext(), R.style.YourDialogStyle));
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
             }
         });
@@ -403,8 +404,6 @@ public class MainActivity extends Activity {
                 String dtitle2 = title2.replaceAll(", Strait of Georgia - north of Nanaimo", "");
                 alertwindwarning.setText(dtitle2);
                 blink();
-
-
             } else {
                 alertwindwarning.setText("There are no wind warnings in effect.");
             }

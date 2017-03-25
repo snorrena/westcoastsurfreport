@@ -70,7 +70,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (isOnline()) {//check for internet connectivity
             requestData(datasource);//passed the two xml data sources (html address) into the requestData method
         } else {
-            Toast.makeText(this.context, "Network isn't available", Toast.LENGTH_LONG).show();
             Log.d(TAG, "The network isn't available!");
 
             cal.setTimeInMillis(System.currentTimeMillis());
