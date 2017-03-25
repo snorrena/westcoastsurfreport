@@ -44,12 +44,11 @@ public class Splash extends Activity {
             int recordCount;
             try {
                 recordCount = tdb_splash.getInt("recordssaved");
+                Log.d(TAG, "Record count: " + String.valueOf(recordCount));
             } catch (Exception e) {
                 recordCount = 0;
                 e.printStackTrace();
             }
-
-            tdb_splash.putBoolean("webScrapeComplete", true);
 
             //collect Halibut Bank data from the web if record count is less than 6
             if (recordCount < 6) {
@@ -74,7 +73,7 @@ public class Splash extends Activity {
                         if (!tdb_splash.getBoolean("webScrapeComplete")) {//check if web scrape is in process.
                             while (!tdb_splash.getBoolean("webScrapeComplete")) {//pause until the web scrape finishes download of new data.
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(3000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }

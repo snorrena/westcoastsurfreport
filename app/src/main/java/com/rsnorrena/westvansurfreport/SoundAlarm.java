@@ -54,14 +54,7 @@ public class SoundAlarm {
         mp = MediaPlayer.create(context, R.raw.splashsound);
         mp.setLooping(true);// set to true for loop
         mp.start();
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.stop();
-                mp.reset();
-                mp.release();
-            }
-        });
+
     }
 
     public void alarmOff() {

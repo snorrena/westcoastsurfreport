@@ -23,6 +23,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class AlarmReceiver extends BroadcastReceiver {
 
     private static final String TAG = AlarmReceiver.class.getSimpleName();
@@ -113,9 +115,28 @@ public class AlarmReceiver extends BroadcastReceiver {
     public class MyTask extends AsyncTask<String, String, String[]> {
 //MyTask extends AsyncTask to execute http connect outside of the main thread
 
-        @Override
-        protected void onPreExecute() {//nothing happening here
+        TinyDB tdb = new TinyDB(context);
 
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "MyTask onPreExecute called");
+            try {
+                if (!tdb.getBoolean("webScrapeComplete")) {//check if web scrape is in process.
+                    Log.d(TAG, "Paused in OnPreExecute - waiting for webScrape to complete");
+                    while (!tdb.getBoolean("webScrapeComplete")) {//pause until the web scrape finishes download of new data.
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    sleep(3000);//pause the app on the splash screen for three seconds
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -135,7 +156,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         protected void onPostExecute(String[] result) {
 
             tinydb = new TinyDB(context);
-            int recordssaved = tinydb.getInt("recordssaved");//record in app prefs that a new record has been added
+
+            int recordssaved = tinydb.getInt("recordssaved");
 
             //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
             //result = content String array passed from the doinbackground method
@@ -196,39 +218,30 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 boolean nextHour = false;
 
-                if (oldH == 23 && newH == 0) {
+                if (23 == oldH && 0 == newH) {//test for hour = 23. If new hour > 0 refresh Halibut Bank data.
 
                     nextHour = true;
 
-                } else if (newH > oldH) {
+                } else if (23 == oldH && newH > 0) {
 
-                    if (newH - oldH > 1) {//if the new record hour is greater by more than one hour refresh data.
+                    refreshHalibutBankData();
 
-                        //refresh Halibut Bank data from the web
-                        Thread t = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tinydb.putBoolean("webScrapeComplete", false);
-                                JsoupWebScrape webScrape = new JsoupWebScrape(context);
-                                webScrape.scrapeHalibutBankData();
-                            }
-                        });
-                        t.start();
-                        try {
-                            t.join();//use join to complete thread before continuing.
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    nextHour = true;
 
-                        nextHour = true;
+                }//end of test for hour 23
 
-                    } else {
+                if (newH > oldH) {
 
-                        nextHour = true;
+                    nextHour = true;
 
-                    }
+                    if (newH - oldH > 1) {//if the new hour is greater than the old hour by more than one refresh data.
 
-                }
+                        refreshHalibutBankData();
+
+                    }//end of test for hour difference greater than 1.
+                }//end of test for new hour greater than old hour.
+
+                Log.d(TAG, "Next hour = " + nextHour);
 
                 //Only add the record if the time stamp is new.
                 if (nextHour) {
@@ -253,7 +266,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     itemstoadd.add(winddirectiondegrees);
                     currentdatafeed.addAll(itemstoadd);
 
-                    recordssaved = recordssaved + 1;
+                    recordssaved = tinydb.getInt("recordssaved");
+                    ++recordssaved;
                     tinydb.putInt("recordssaved", recordssaved);
                     Log.d(TAG, "NewRecordadded");
                     String saveddatarecord = "";
@@ -348,10 +362,35 @@ public class AlarmReceiver extends BroadcastReceiver {
                     cal.add(Calendar.MINUTE, 10);//adda ten minutes to the current time.
 
                     setNextAlarm(cal);
+                }
+            }
 
+
+        }
+
+        private void refreshHalibutBankData() {
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    tinydb.putBoolean("webScrapeComplete", false);
+                    JsoupWebScrape webScrape = new JsoupWebScrape(context);
+                    webScrape.scrapeHalibutBankData();
+                }
+            });
+            t.start();
+
+            if (!tinydb.getBoolean("webScrapeComplete")) {//check if web scrape is in process.
+                while (!tinydb.getBoolean("webScrapeComplete")) {//pause until the web scrape finishes download of new data.
+                    try {
+                        sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
+
 
         @Override
         protected void onProgressUpdate(String... values) {

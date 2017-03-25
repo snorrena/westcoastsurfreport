@@ -87,6 +87,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        Log.d(TAG, "on Create called");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.data_table);
         //sets the display as per the layout data_table
@@ -175,7 +177,6 @@ public class MainActivity extends Activity {
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.YourDialogStyle);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
-
             }
         });
 
@@ -438,8 +439,8 @@ public class MainActivity extends Activity {
         Log.d(TAG, "onResume called");
         MainActivity.activityResumed();
         updateDisplayService();
-//        checkOnReceiveTrigger();
-//        updateDisplay();
+        checkOnReceiveTrigger();
+        updateDisplay();
     }
 
     @Override
@@ -464,6 +465,8 @@ public class MainActivity extends Activity {
     }
 
     public void checkOnReceiveTrigger() {
+
+        Log.d(TAG, "checkOnReceiveTrigger called");
 
         boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this, 0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
 
@@ -503,6 +506,12 @@ public class MainActivity extends Activity {
     public void updateDisplay() {
 
         Log.d(TAG, "update display called");
+
+        if (!tinydb.getBoolean("webScrapeComplete")) {
+            Toast toast = Toast.makeText(context, "Data update in progress...", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
 
         surfPotentialPercentage();
 
