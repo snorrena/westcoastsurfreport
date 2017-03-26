@@ -87,8 +87,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set of a repeating alarm
-        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         } else {
             manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
@@ -198,6 +198,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 Log.d(TAG, "The Halibut Bank report file is null");
 
+                //set new alarm here to check for new record in ten minutes
+                cal.setTimeInMillis(System.currentTimeMillis());
+                cal.add(Calendar.MINUTE, 10);//adda ten minutes to the current time.
+
+                setNextAlarm(cal);
+
             } else {
 
                 int newH, oldH;
@@ -217,32 +223,39 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 boolean nextHour = false;
 
-                if (23 == oldH && 0 == newH) {//test for hour = 23. If new hour > 0 refresh Halibut Bank data.
+                if (newH != oldH) {//test for sequential hourly report.
 
-                    nextHour = true;
 
-                } else if (23 == oldH && newH > 0) {
-
-                    refreshHalibutBankData();
-
-                    nextHour = true;
-
-                }//end of test for hour 23
-
-                if (newH > oldH) {
-
-                    nextHour = true;
-
-                    if (newH - oldH > 1) {//if the new hour is greater than the old hour by more than one refresh data.
+                    if (23 == oldH && newH > 0) {
 
                         refreshHalibutBankData();
+                        nextHour = true;
 
-                    }//end of test for hour difference greater than 1.
-                }//end of test for new hour greater than old hour.
+                    }
 
-                Log.d(TAG, "Next hour = " + nextHour);
+                    if (0 == oldH && newH > 1) {
 
-                //Only add the record if the time stamp is new.
+                        refreshHalibutBankData();
+                        nextHour = true;
+
+                    }
+
+                    if ((newH - oldH) > 1) {//hour difference greater than one.
+
+                        refreshHalibutBankData();
+                        nextHour = true;
+
+                    }
+
+                    if (1 == (newH - oldH)) {
+
+                        nextHour = true;
+
+                    }
+
+                }
+
+                //Only add the record if the time stamp is the next hour or if the data has been refreshed..
                 if (nextHour) {
 
                     //code to extract and save the halibut bank data
@@ -268,7 +281,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     recordssaved = tinydb.getInt("recordssaved");
                     ++recordssaved;
                     tinydb.putInt("recordssaved", recordssaved);
-                    Log.d(TAG, "NewRecordadded");
+                    Log.d(TAG, "NewRecordadded # " + String.valueOf(recordssaved));
                     String saveddatarecord = "";
 
                     ArrayList<String> retaineddatarecord = new ArrayList<String>();
@@ -363,11 +376,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     setNextAlarm(cal);
                 }
             }
-
-
         }
 
         private void refreshHalibutBankData() {
+
+            Log.d(TAG, "Data refreshed");
 
             Thread t = new Thread(new Runnable() {
                 @Override
@@ -378,18 +391,12 @@ public class AlarmReceiver extends BroadcastReceiver {
                 }
             });
             t.start();
-
-            if (!tinydb.getBoolean("webScrapeComplete")) {//check if web scrape is in process.
-                while (!tinydb.getBoolean("webScrapeComplete")) {//pause until the web scrape finishes download of new data.
-                    try {
-                        sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
-
 
         @Override
         protected void onProgressUpdate(String... values) {

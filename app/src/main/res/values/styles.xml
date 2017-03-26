@@ -6,9 +6,9 @@
         <item name="android:textColor">#ffffff</item>
     </style>
 
-<style name="SpinnerTextViewItem" parent="@android:style/Widget.TextView" >
-    <item name="android:popupBackground">#000000</item>
-</style>
+    <style name="SpinnerTextViewItem" parent="@android:style/Widget.TextView">
+        <item name="android:popupBackground">#000000</item>
+    </style>
 
     <style name="YourDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">#000000</item>

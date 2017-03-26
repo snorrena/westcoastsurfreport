@@ -279,7 +279,7 @@ public class MainActivity extends Activity {
 
         updateDisplay();
 
-        checkOnReceiveTrigger();//set and alarm if there is one already scheduled.
+        checkOnReceiveTrigger();//set an alarm if there isn't one already scheduled.
 
         if (!tinydb.getBoolean("batterySaverCheck")) {
             checkForBatterySaver();//function to check if doze mode is set from the app in android os >= Marshmallo
@@ -357,17 +357,18 @@ public class MainActivity extends Activity {
                     Log.d(TAG, "The update display service is started.");
                     try {
                         while (isActivityVisible()) {//loop to update the display if a new data record is added by the monitoring service
-                            boolean x = tinydb.getBoolean("newrecordadded");
-                            if (x) {
-                                runOnUiThread(new Runnable() {
+                            if (tinydb.getBoolean("webScrapeComplete")) {
+                                if (tinydb.getBoolean("newrecordadded")) {
+                                    runOnUiThread(new Runnable() {
 
-                                    @Override
-                                    public void run() {
-                                        tinydb.putBoolean("newrecordadded", false);
-                                        updateDisplay();//runs the update display method on the main thread if a new data record has been added
+                                        @Override
+                                        public void run() {
+                                            tinydb.putBoolean("newrecordadded", false);
+                                            updateDisplay();//runs the update display method on the main thread if a new data record has been added
 
-                                    }
-                                });
+                                        }
+                                    });
+                                }
                             }
 
                             Thread.sleep(3000);
@@ -377,16 +378,16 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
 
-
                 }
             }).start();
+
         } else {
             Log.d(TAG, "The update display service is already running");
         }
 
-    }
+    }//end of updateDisplayService
 
-    private void WindWarningCheck() {
+    private void windWarningCheck() {
         ArrayList<String> windforecast = new ArrayList<String>();
         int size = 0;
         try {
@@ -439,7 +440,7 @@ public class MainActivity extends Activity {
         MainActivity.activityResumed();
         updateDisplayService();
         checkOnReceiveTrigger();
-        updateDisplay();
+        windWarningCheck();
     }
 
     @Override
@@ -488,14 +489,14 @@ public class MainActivity extends Activity {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         String alarmTime = sdf.format(cal.getTime());
-        Log.d("Alarm set: ", alarmTime);
+        Log.d(TAG, "Alarm set: " + alarmTime);
 
         //sets the android system alarm to run the onRecieve method in the AlarmReceiver class every ten minutes
-        manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
+        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             manager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         } else {
             manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
@@ -518,7 +519,7 @@ public class MainActivity extends Activity {
             setWindWarningVisible();
         }
 
-        WindWarningCheck();
+        windWarningCheck();
 
         //clear of all text fields. Not sure why typeface is reset to normal
         tvd1.setText("");

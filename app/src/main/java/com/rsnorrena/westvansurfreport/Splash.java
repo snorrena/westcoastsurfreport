@@ -29,7 +29,7 @@ public class Splash extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-        //overide the onCreate method of this Activity and set the layout as defined in the splash xml layout file.
+        //override the onCreate method of this Activity and set the layout as defined in the splash xml layout file.
 
         context = getApplication();
         //sets the context variable by calling the getApplication method of the Activity class
@@ -63,14 +63,15 @@ public class Splash extends Activity {
                 t.start();
             }
 
-
             Thread timer = new Thread() {
                 //starts a new thread to pause the app for three seconds before moving on to a new activity based on contents of the app settings boolean
 
                 public void run() {
 
                     try {
+
                         if (!tdb_splash.getBoolean("webScrapeComplete")) {//check if web scrape is in process.
+                            Log.d(TAG, "Paused for web scrape");
                             while (!tdb_splash.getBoolean("webScrapeComplete")) {//pause until the web scrape finishes download of new data.
                                 try {
                                     Thread.sleep(3000);
@@ -79,7 +80,9 @@ public class Splash extends Activity {
                                 }
                             }
                         } else {
+
                             sleep(3000);//pause the app on the splash screen for three seconds
+
                         }
 
                     } catch (InterruptedException e) {
@@ -116,7 +119,6 @@ public class Splash extends Activity {
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(Splash.this, R.style.YourDialogStyle);
                 builder.setMessage("No internet!\n\nCheck your network settings and try again.").setPositiveButton("Yes", dialogClickListener).show();
-
 
             } catch (Exception e) {
                 e.printStackTrace();
