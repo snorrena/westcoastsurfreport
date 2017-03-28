@@ -19,24 +19,21 @@ public class SurfConditionsCheck {
         int recordstart = recordssaved - 2;
 
         //grade the surf conditions based on the last three records saved in the database.
-
         if (recordstart > 0) {
 
             for (int i = recordstart; i <= recordssaved; i++) {
                 String x = "saveddatarecord" + String.valueOf(i);
                 retrieveddatarecord = tinydb.getList(x);
 
-//                String winddirection = retrieveddatarecord.get(2);
                 String windspeed = retrieveddatarecord.get(3);
                 String waveheight = retrieveddatarecord.get(4);
 
-//                int winddirectiondegrees = Integer.valueOf(winddirection.replaceAll("[^0-9]", ""));
                 int winddirectiondegrees = Integer.valueOf(retrieveddatarecord.get(6));
                 float numericwindspeed = Float.valueOf(windspeed.replaceAll("[^0-9.]", ""));
                 float windsp = Float.valueOf(numericwindspeed);
                 float numericwaveheight = Float.valueOf(waveheight.replaceAll("[^0-9.]", ""));
 
-//only use data for westerly wind direction
+                //only use data for westerly wind direction
                 if (winddirectiondegrees >= 270 && winddirectiondegrees <= 315) {
                     threehourgoodwindtrend = threehourgoodwindtrend + 1;
                     if (numericwaveheight >= 2.5) {
