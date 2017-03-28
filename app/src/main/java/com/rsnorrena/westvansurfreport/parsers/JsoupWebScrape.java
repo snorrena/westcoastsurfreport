@@ -209,6 +209,13 @@ public class JsoupWebScrape {
                             waveheight = tokens[6];
                             waveinterval = tokens[7];
 
+                            //check if the wave height information is accurate
+                            String checkedWaveHeight = waveheight.replaceAll("[^0-9.]", "");
+                            if (checkedWaveHeight.equals("")) {
+                                waveheight = "0";
+                                waveinterval = "0";
+                            }
+
                             //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
                             ArrayList<String> currentdatafeed = new ArrayList<String>();
                             ArrayList<String> itemstoadd = new ArrayList<String>();

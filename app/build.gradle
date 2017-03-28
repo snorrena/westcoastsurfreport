@@ -5,7 +5,7 @@ android {
         westvansurfreport {
             keyAlias 'WVS'
             keyPassword '1Tangynorwvs'
-            storeFile file('C:/Users/Admin/AndroidStudioProjects/WestVanSurfReport Keystore/westvansurfkey.jks')
+            storeFile file('C:/Dropbox/Development/Android_Studio/Keystore/WestVanSurfReport Keystore/westvansurfkey.jks')
             storePassword '1Tabbynorwvs'
         }
     }
@@ -15,8 +15,8 @@ android {
         applicationId "com.rsnorrena.westvansurfreport"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 8
-        versionName '8'
+        versionCode 9
+        versionName '9'
         signingConfig signingConfigs.westvansurfreport
     }
     buildTypes {

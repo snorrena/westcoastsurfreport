@@ -99,10 +99,23 @@ public class RssXMLParser {
                                         }
                                         //the token items of interest are then saved into the data object.
                                         rssdata.setTime(time);
+                                        Log.d(TAG, "Time: " + time);
                                         rssdata.setWind_direction(winddirection);
+                                        Log.d(TAG, "Wind direction: " + winddirection);
                                         rssdata.setWind_speed(windspeed);
+                                        Log.d(TAG, "Wind speed: " + windspeed);
                                         rssdata.setWave_height(waveheight);
+
+                                        //check if the wave height information is working
+                                        String checkedWaveHeight = waveheight.replaceAll("[^0-9.]", "");
+                                        if (checkedWaveHeight.equals("")) {
+                                            waveheight = "0";
+                                            waveinterval = "0";
+                                        }
+
+                                        Log.d(TAG, "Wave height: " + waveheight);
                                         rssdata.setWave_interval(waveinterval);
+                                        Log.d(TAG, "Wave interval: " + waveinterval);
 
                                     default:
                                         break;
