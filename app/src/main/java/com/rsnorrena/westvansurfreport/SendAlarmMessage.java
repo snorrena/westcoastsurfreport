@@ -62,7 +62,7 @@ public class SendAlarmMessage {
 
 
                     Mail m = new Mail(emailaddress, password);//creates and instance of the mail obj passing in the email adr and psw
-
+                    Log.i(emailaddress, password);
                     String[] toArr = phonenumbers;//assigns the phone # array to the string array toArr
 //                    String[] toArr = {"snorrena@gmail.com", "snorrena@hotmail.com"};
                     m.set_to(toArr);//call to the set_to method of the Mail obj passed in the toArr array of phone numbers

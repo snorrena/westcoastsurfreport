@@ -192,6 +192,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             spinner_number1.setSelection(3);
         } else if (serviceProviderPhone1.equals("@txt.freedommobile.ca")) {
             spinner_number1.setSelection(4);
+        } else if (serviceProviderPhone1.equals("@msg.koodomobile.com")) {
+            spinner_number1.setSelection(5);
         }
 
 
@@ -205,6 +207,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
             spinner_number2.setSelection(3);
         } else if (serviceProviderPhone2.equals("@txt.freedommobile.ca")) {
             spinner_number2.setSelection(4);
+        } else if (serviceProviderPhone2.equals("@msg.koodomobile.com")) {
+            spinner_number2.setSelection(5);
         }
     }
 
@@ -271,6 +275,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
                     txtMsgAddress1 = phone1 + "@fido.ca";
                 } else if (service_provider_phone1.equals("Freedom")) {
                     txtMsgAddress1 = phone1 + "@txt.freedommobile.ca";
+                } else if (service_provider_phone1.equals("Koodo")) {
+                    txtMsgAddress1 = phone1 + "@msg.koodomobile.com";
                 }
             }
 
@@ -285,6 +291,8 @@ public class SetUp extends LicenseCheckActivity {//extends the LicenseCheckActiv
                     txtMsgAddress2 = phone2 + "@fido.ca";
                 } else if (service_provider_phone2.equals("Freedom")) {
                     txtMsgAddress2 = phone2 + "@txt.freedommobile.ca";
+                } else if (service_provider_phone2.equals("Koodo")) {
+                    txtMsgAddress1 = phone2 + "@msg.koodomobile.com";
                 }
             }
 

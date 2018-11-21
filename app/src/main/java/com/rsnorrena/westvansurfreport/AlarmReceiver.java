@@ -45,7 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     String winddirectiondegrees;
 
     //two xml data sources used in the app for wind forecast and Halibut Bank live data.
-    String[] datasource = {"http://www.ndbc.noaa.gov/data/latest_obs/46146.rss", "https://weather.gc.ca/rss/marine/14300_e.xml"};
+    String[] datasource = {"https://www.ndbc.noaa.gov/data/latest_obs/46146.rss", "https://weather.gc.ca/rss/marine/14300_e.xml"};
 
     Context context;//context variable declaration to hold the contect passed into the onReceive method
 

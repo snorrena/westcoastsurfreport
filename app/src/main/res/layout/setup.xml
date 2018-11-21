@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Enter the Gmail account information to be used for send of e-mail to text message notifications."
+        android:text="Enter your Gmail account information. Your Google account must be set to allow for sign on by less secure applications in order to send e-mail to text message notifications: Google Account - Sign-in &amp; security - Allow less secure apps: ON"
         android:id="@+id/textView3"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
