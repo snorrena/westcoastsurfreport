@@ -21,7 +21,7 @@
 
     <uses-sdk
         android:minSdkVersion="19"
-        android:targetSdkVersion="26" />
+        android:targetSdkVersion="28" />
     <!-- Devices >= 3 have version of Android Market that supports licensing. -->
 <!--     <uses-sdk android:targetSdkVersion="23" /> -->
 
