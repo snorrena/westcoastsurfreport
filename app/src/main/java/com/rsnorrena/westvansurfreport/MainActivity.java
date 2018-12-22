@@ -13,10 +13,15 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 //import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,7 +34,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     //initialization of class variables (highlighted purple)
     private ToggleButton tb;
@@ -73,6 +78,17 @@ public class MainActivity extends Activity {
     private Intent alarmIntent;
     private PendingIntent pendingIntent;
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.item1:
+                Intent myIntent = new Intent(MainActivity.this, SetUp.class);
+                MainActivity.this.startActivity(myIntent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public static SoundAlarm soundAlarm;
 
     @Override//send user to the setup screen on press of the menu button
@@ -87,6 +103,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         Log.d(TAG, "on Create called");
@@ -94,6 +117,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.data_table);
         //sets the display as per the layout data_table
+
+        Toolbar toolbar  = findViewById(R.id.toolbar);
+        toolbar.getBackground().setAlpha(0);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
 
         MainActivity.context = getApplicationContext();
         //sets the application context to the variable "context".
