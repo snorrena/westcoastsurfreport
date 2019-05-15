@@ -52,7 +52,7 @@ public class JsoupWebScrape {
 
             try {
                 //get conditions report for the Halibut Bank buoy.
-                doc = Jsoup.connect("http://www.ndbc.noaa.gov/station_page.php?station=46146").timeout(6000).get();
+                doc = Jsoup.connect("https://www.ndbc.noaa.gov/station_page.php?station=46146").timeout(6000).get();
 
             } catch (IOException e) {
                 e.printStackTrace();
