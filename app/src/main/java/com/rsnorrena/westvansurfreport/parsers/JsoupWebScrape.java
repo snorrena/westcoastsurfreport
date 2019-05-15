@@ -286,7 +286,7 @@ public class JsoupWebScrape {
 
                 try {
                     //get the wind report for north of Nanaimo.
-                    doc = Jsoup.connect("http://weather.gc.ca/rss/marine/14300_e.xml").timeout(6000).get();
+                    doc = Jsoup.connect("https://weather.gc.ca/rss/marine/14300_e.xml").timeout(6000).get();
 
                 } catch (IOException e) {
                     e.printStackTrace();
