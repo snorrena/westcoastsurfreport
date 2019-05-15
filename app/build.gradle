@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.rsnorrena.westvansurfreport"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 25
         versionCode 15
         versionName '15'
         signingConfig signingConfigs.westvansurfreport
@@ -26,8 +26,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility '1.8'
-        targetCompatibility '1.8'
+        sourceCompatibility '1.7'
+        targetCompatibility '1.7'
     }
     productFlavors {
     }
