@@ -509,6 +509,7 @@ public class MainActivity extends AppCompatActivity {
     private void setOnReceiveTrigger() {
 
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
+        alarmIntent.setClass(context, AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Calendar cal = Calendar.getInstance();
