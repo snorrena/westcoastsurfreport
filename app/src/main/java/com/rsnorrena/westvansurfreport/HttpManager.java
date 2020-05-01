@@ -51,13 +51,18 @@ public class HttpManager {
         public static String getDocument(String url){
             Document doc = null;
 
-            try {
-                //get conditions report for the Halibut Bank buoy.
-                doc = Jsoup.connect("https://www.ndbc.noaa.gov/station_page.php?station=46146").timeout(6000).get();
+            boolean dataIsDownloaded = false;
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            while(!dataIsDownloaded){
+                try {
+                    //get conditions report for the Halibut Bank buoy.
+                    doc = Jsoup.connect("https://www.ndbc.noaa.gov/station_page.php?station=46146").timeout(6000).get();
+                    dataIsDownloaded = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
             return doc.html();
         }
 }
