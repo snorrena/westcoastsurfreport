@@ -187,15 +187,17 @@ public class RssXMLParser {
 
                 Element titleDataHeader = currentReport.getElementsByClass("titleDataHeader").get(0);
                 String titleData = RssXMLParser.html2text(titleDataHeader.toString());//clean out the html tags
-                Log.d(TAG, "TitleDataHeader");
+                Log.d(TAG, "Current report: TitleDataHeader");
                 Log.d(TAG, titleData.toString());
                 String[] titleDataHeaderTokens = titleData.toString().split(" ");
                 Log.d(TAG, "Title token data");
-                for (int i = 0; i < titleDataHeaderTokens.length; i++) {
-                    Log.d(TAG, "index: " + i + ": " + titleDataHeaderTokens[i]);
+                Log.d(TAG, "----------------");
+              for (int i = 0; i < titleDataHeaderTokens.length; i++) {
+                    Log.d(TAG, "Token " + i + ": " + titleDataHeaderTokens[i]);
                 }
-
-                for (int i = 0; i < currentReportRows.size(); i++) {
+                Log.d(TAG, "Current report: Table data");
+                Log.d(TAG, "--------------------------");
+              for (int i = 0; i < currentReportRows.size(); i++) {
                     Element row = currentReportRows.get(i);
                     Elements cols = row.select("td");
                     String cleanedRow = RssXMLParser.html2text(cols.toString());//clean out the html tags
@@ -216,8 +218,9 @@ public class RssXMLParser {
                     if (i == 5) {
                         waveinterval = tokens[4];
                     }
-                    for (String item : tokens) {
-                        Log.d(TAG, item);
+                    for (int j = 0; j < tokens.length; j++) {
+                        String item = tokens[j];
+                        Log.d(TAG, ":  Token " + j + ": " + item);
                     }
 
                 }

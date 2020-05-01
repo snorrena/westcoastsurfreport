@@ -18,14 +18,5 @@
         android:textStyle="bold"
         android:layout_centerInParent="true" />
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:id="@+id/imageView"
-        android:src="@drawable/signature"
-        android:layout_below="@id/textView2"
-        android:layout_alignRight="@id/textView2"
-        android:layout_marginTop="30dp" />
-
 
 </RelativeLayout>
