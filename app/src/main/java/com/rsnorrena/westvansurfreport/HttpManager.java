@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 public class HttpManager {
 
     public static String getData(String uri) {
@@ -45,6 +48,17 @@ public class HttpManager {
         }
         return fileToReturn;
     }
+        public static String getDocument(String url){
+            Document doc = null;
 
+            try {
+                //get conditions report for the Halibut Bank buoy.
+                doc = Jsoup.connect("https://www.ndbc.noaa.gov/station_page.php?station=46146").timeout(6000).get();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return doc.html();
+        }
 }
 

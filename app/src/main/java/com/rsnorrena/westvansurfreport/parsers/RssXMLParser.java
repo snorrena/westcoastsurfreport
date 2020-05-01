@@ -1,241 +1,156 @@
 package com.rsnorrena.westvansurfreport.parsers;
 
 import android.util.Log;
+
+import com.rsnorrena.westvansurfreport.TinyDB;
 import com.rsnorrena.westvansurfreport.model.RssData;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class RssXMLParser {
 
     private static final String TAG = RssXMLParser.class.getSimpleName();
 
-    public static RssData parseFeed(String[] content, int index) {
+    public static RssData parseFeed(String[] content, int index, RssData rssdata) throws IOException, SAXException, ParserConfigurationException {
         //method receives the string value of the xml file(s) in the String array "content"
         // and returns the data file "Rssata".
 
-        RssData rssdata = null;
         //instance of the data object class for the current data object
 
         boolean inDataItemTag = false;
         //used to determine if we care about the current data item
-        String currentTagName = "";
-        //which tag we are currently in..
 
-        if (index == 0) {//condition to check the first file for the Halibut Bank data
-            Log.d(TAG, "Downloading the Halibut Bank data file");
-            try {//the parsing code is surrounded in the try catch
-                //creates the object the parse the xml files contained in the array
-                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                XmlPullParser parser = factory.newPullParser();
-                parser.setInput(new StringReader(content[0]));//set the input to the first item in the content String array
-
-                int eventType = parser.getEventType();
-                //the XmlPullParser generates events, start tag, end tag, text, attributes
-                //in this example we only care about the start tags end tags and text events
-                int descriptionfieldcount = 0;
-                while (eventType != XmlPullParser.END_DOCUMENT) {//loop until the end tag of the xml file
-
-                    switch (eventType) {//switch based on check of the tag name
-
-                        case XmlPullParser.START_TAG:
-                            currentTagName = parser.getName();
-                            if (currentTagName.equals("description")) {
-
-                                descriptionfieldcount++;
-
-                                if (descriptionfieldcount == 2) {//we are only interested in the data contained with the second set of description tags
-
-                                    inDataItemTag = true;
-                                    rssdata = new RssData();//creats the obj to hold the data
-                                }
-
-
-                            }
-                            break;
-
-                        case XmlPullParser.END_TAG://when the end tag is reached we reset.
-                            if (parser.getName().equals("description")) {
-                                inDataItemTag = false;
-                            }
-                            currentTagName = "";
-                            break;
-
-                        case XmlPullParser.TEXT://case to parse text from inbetween the description tag
-                            if (inDataItemTag && rssdata != null) {//confirms that we are in a data item we want and that the data obj has been created
-                                switch (currentTagName) {
-
-                                    case "description":
-
-                                        String rawdescription = parser.getText();
-                                        //the raw text is parsed from inbetween the (2) set of description tags in the rss file
-                                        String cleandescription = html2text(rawdescription);
-                                        //jsoup is then used to strip out the html code
-                                        //jsoup is a special jar library added to the proj for this purpose
-
-                                        String demilms = "[ ]";
-                                        String[] tokens = cleandescription.split(demilms);
-                                        //the cleaned text is then split into the token array by the deliminator space
-                                        //used a for loop to output the index number and token in order to identify the token items of interest
-
-                                        String date = tokens[0] + " " + tokens[1] + " " + tokens[2];
-                                        Log.d(TAG, date);
-                                        String time = tokens[3] + " " + tokens[4];
-                                        String winddirection = tokens[11] + " " + tokens[12];
-                                        String windspeed = tokens[15] + " " + tokens[16];
-                                        String waveheight = tokens[24];
-                                        String waveinterval = tokens[29];
-
-                                        rssdata.setDate(date);//call the the set methods in the data object to save the string data
-                                        String[] hour = time.split(":");
-                                        int h = Integer.parseInt(hour[0]);
-                                        if (time.contains("12:00 am")) {
-                                            time = "00:00 am";
-                                        }
-                                        if (time.contains("pm") && h < 12) {
-                                            h = h + 12;
-                                            time = h + ":00 pm";
-                                        }
-                                        //the token items of interest are then saved into the data object.
-                                        rssdata.setTime(time);
-                                        Log.d(TAG, "Time: " + time);
-                                        rssdata.setWind_direction(winddirection);
-                                        Log.d(TAG, "Wind direction: " + winddirection);
-                                        rssdata.setWind_speed(windspeed);
-                                        Log.d(TAG, "Wind speed: " + windspeed);
-                                        rssdata.setWave_height(waveheight);
-
-                                        //check if the wave height information is working
-                                        String checkedWaveHeight = waveheight.replaceAll("[^0-9.]", "");
-                                        if (checkedWaveHeight.equals("")) {
-                                            waveheight = "0";
-                                            waveinterval = "0";
-                                        }
-
-                                        Log.d(TAG, "Wave height: " + waveheight);
-                                        rssdata.setWave_interval(waveinterval);
-                                        Log.d(TAG, "Wave interval: " + waveinterval);
-
-                                    default:
-                                        break;
-                                }
-                            }
-                            break;
-                    }
-
-                    eventType = parser.next();
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                rssdata = null;
-            }
+        if (index == 2){
+            rssdata = scrapeHalibutBankData(rssdata, content[2]);
         }
 
-        if (index == 1) {
-            Log.d(TAG, "Downloading the wind warning data file");
-            //code for parsing the windwarding data
-            //data to be collected from xml - title fields 1-3 and summary fields 1 & 2.
-            try {
+        if (index == 1){
+            rssdata = scrapeWindWarningData(rssdata, content[1]);
+        }
 
-                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                XmlPullParser parser = factory.newPullParser();
-                parser.setInput(new StringReader(content[1]));
+        return rssdata;
+    }
 
-                int eventType = parser.getEventType();
-                //the XmlPullParser generates events, start tag, end tag, text, attributes
-                //in this example we only care about the start tags end tags and text events
-                int titlefieldcount = 0;
-                int summaryfiedcount = 0;
+    private static RssData scrapeWindWarningData(RssData rssdata, String content) {
+        Log.d(TAG, "Downloading the wind warning data file");
+        //code for parsing the windwarding data
+        //data to be collected from xml - title fields 1-3 and summary fields 1 & 2.
+        try {
 
-                rssdata = new RssData();// we only need one data object for the the wind warning info
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new StringReader(content));
 
-                while (eventType != XmlPullParser.END_DOCUMENT) {//loop through the whole file until the end tag
+            int eventType = parser.getEventType();
+            //the XmlPullParser generates events, start tag, end tag, text, attributes
+            //in this example we only care about the start tags end tags and text events
+            int titlefieldcount = 0;
+            int summaryfiedcount = 0;
+            String currentTagName = null;
+            boolean inDataItemTag = false;
 
-                    switch (eventType) {//switch based on the event type or tag name
+            rssdata = new RssData();// we only need one data object for the the wind warning info
 
-                        case XmlPullParser.START_TAG:
-                            currentTagName = parser.getName();
-                            if (currentTagName.equals("title")) {
+            while (eventType != XmlPullParser.END_DOCUMENT) {//loop through the whole file until the end tag
 
-                                titlefieldcount++;
+                switch (eventType) {//switch based on the event type or tag name
 
-                                if (titlefieldcount < 4) {
+                    case XmlPullParser.START_TAG:
+                        currentTagName = parser.getName();
+                        if (currentTagName.equals("title")) {
 
-                                    inDataItemTag = true;
+                            titlefieldcount++;
 
-                                }
+                            if (titlefieldcount < 4) {
 
-                            }
-
-                            if (currentTagName.equals("summary")) {
-
-                                summaryfiedcount++;
-
-                                if (summaryfiedcount < 3) {
-
-                                    inDataItemTag = true;
-
-                                }
+                                inDataItemTag = true;
 
                             }
 
-                            break;
+                        }
 
-                        case XmlPullParser.END_TAG:
-                            if (parser.getName().equals("title")) {
-                                inDataItemTag = false;
+                        if (currentTagName.equals("summary")) {
+
+                            summaryfiedcount++;
+
+                            if (summaryfiedcount < 3) {
+
+                                inDataItemTag = true;
+
                             }
-                            if (parser.getName().equals("summary")) {
-                                inDataItemTag = false;
+
+                        }
+
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        if (parser.getName().equals("title")) {
+                            inDataItemTag = false;
+                        }
+                        if (parser.getName().equals("summary")) {
+                            inDataItemTag = false;
+                        }
+                        currentTagName = "";
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        if (inDataItemTag && rssdata != null) {
+                            switch (currentTagName) {
+
+                                case "title":
+
+                                    String title = parser.getText();
+                                    //the raw text is parsed from inbetween the (2) set of description tags in the rss file
+
+                                    if (titlefieldcount == 1) {//call the the set method in the data obj to save the title text content
+                                        rssdata.setTitle1(title);
+                                    } else if (titlefieldcount == 2) {
+                                        rssdata.setTitle2(title);
+                                    } else if (titlefieldcount == 3) {
+                                        rssdata.setTitle3(title);
+                                    }
+                                    break;
+                                case "summary":
+
+                                    String summary = parser.getText();
+                                    //the raw text is parsed from inbetween the (2) set of description tags in the rss file
+                                    String cleandsummary = html2text(summary);
+                                    //jsoup is then used to strip out the html code
+
+                                    if (summaryfiedcount == 1) {
+                                        rssdata.setSummary1(cleandsummary);//call the set method the save the text info in the summary fields
+                                    } else if (summaryfiedcount == 2) {
+                                        rssdata.setSummary2(cleandsummary);
+                                    }
+
+                                    break;
                             }
-                            currentTagName = "";
-                            break;
-
-                        case XmlPullParser.TEXT:
-                            if (inDataItemTag && rssdata != null) {
-                                switch (currentTagName) {
-
-                                    case "title":
-
-                                        String title = parser.getText();
-                                        //the raw text is parsed from inbetween the (2) set of description tags in the rss file
-
-                                        if (titlefieldcount == 1) {//call the the set method in the data obj to save the title text content
-                                            rssdata.setTitle1(title);
-                                        } else if (titlefieldcount == 2) {
-                                            rssdata.setTitle2(title);
-                                        } else if (titlefieldcount == 3) {
-                                            rssdata.setTitle3(title);
-                                        }
-                                        break;
-                                    case "summary":
-
-                                        String summary = parser.getText();
-                                        //the raw text is parsed from inbetween the (2) set of description tags in the rss file
-                                        String cleandsummary = html2text(summary);
-                                        //jsoup is then used to strip out the html code
-
-                                        if (summaryfiedcount == 1) {
-                                            rssdata.setSummary1(cleandsummary);//call the set method the save the text info in the summary fields
-                                        } else if (summaryfiedcount == 2) {
-                                            rssdata.setSummary2(cleandsummary);
-                                        }
-
-                                        break;
-                                }
-                            }
-                            break;
-                    }
-
-                    eventType = parser.next();
-
+                        }
+                        break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                rssdata = null;
+
+                eventType = parser.next();
+
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            rssdata = null;
         }
         return rssdata;
     }
@@ -244,4 +159,150 @@ public class RssXMLParser {
     public static String html2text(String html) {
         return Jsoup.parse(html).text();
     }
+
+    public static RssData scrapeHalibutBankData(RssData rssData, String content) throws ParserConfigurationException, IOException, SAXException {
+
+        Log.d(TAG, "scrapping web for the current Halibut Bank report");
+
+        boolean webScrapeComplete = false;
+
+            Document doc = Jsoup.parse(content);
+
+          if (doc != null) {//only attempt to parse if a document is returned.
+
+                String recordKey = null;
+                String date = null;
+                String time = null;
+                String winddirection = null;
+                String windspeed = null;
+                String waveheight = null;
+                String waveinterval = null;
+                String winddirectiondegrees = null;
+                String nameOfMonth = null;
+
+                //get the current report
+                Element currentReport = doc.getElementById("data");
+                Element currentReportTable = currentReport.select("table").get(0);
+                Elements currentReportRows = currentReportTable.select("tr");
+
+                Element titleDataHeader = currentReport.getElementsByClass("titleDataHeader").get(0);
+                String titleData = RssXMLParser.html2text(titleDataHeader.toString());//clean out the html tags
+                Log.d(TAG, "TitleDataHeader");
+                Log.d(TAG, titleData.toString());
+                String[] titleDataHeaderTokens = titleData.toString().split(" ");
+                Log.d(TAG, "Title token data");
+                for (int i = 0; i < titleDataHeaderTokens.length; i++) {
+                    Log.d(TAG, "index: " + i + ": " + titleDataHeaderTokens[i]);
+                }
+
+                for (int i = 0; i < currentReportRows.size(); i++) {
+                    Element row = currentReportRows.get(i);
+                    Elements cols = row.select("td");
+                    String cleanedRow = RssXMLParser.html2text(cols.toString());//clean out the html tags
+                    String demilms = "[ ]";
+                    String[] tokens = cleanedRow.split(demilms);
+                    //iterate through current data in table rows
+                    Log.d(TAG, "Row index: " + i);
+                    if (i == 1) {
+                        winddirection = tokens[3];
+                        winddirectiondegrees = tokens[5];
+                    }
+                    if (i == 2) {
+                        windspeed = tokens[3];
+                    }
+                    if (i == 4) {
+                        waveheight = tokens[3];
+                    }
+                    if (i == 5) {
+                        waveinterval = tokens[4];
+                    }
+                    for (String item : tokens) {
+                        Log.d(TAG, item);
+                    }
+
+                }
+
+                String numericTime = titleDataHeaderTokens[5].substring(1, titleDataHeaderTokens[5].length());
+                time = setReportTime(numericTime + " " + titleDataHeaderTokens[6]);
+                Log.d(TAG, "Record time: " + time);
+                String dateToParse = titleDataHeaderTokens[11];
+                String[] dateElements = dateToParse.split("/");
+                int month = Integer.valueOf(dateElements[0]);
+                nameOfMonth = getNameOfMonth(month);
+                Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
+                date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
+                Log.d(TAG, "Date: " + date);
+
+               rssData.setDate(date);
+               rssData.setTime(time);
+               rssData.setWind_direction(winddirection + " " + winddirectiondegrees);
+               rssData.setWind_speed(windspeed);
+               rssData.setWave_height(waveheight);
+               rssData.setWave_interval(waveinterval);
+
+        }//end of scrapeHalib
+        return rssData;
+    }
+
+    private static String setReportTime(String time) {
+        String[] hour = time.split(":");
+        int h = Integer.parseInt(hour[0]);//get the hour of time from the token
+
+        if (time.contains("am") && (h == 12)) {//change to 24 hour clock if time is 12 am.
+            time = "00:00 am";
+        }
+
+        if (time.contains("pm") && h < 12) {//change to 24 hour clock
+            h = h + 12;
+            time = h + ":00 pm";
+        }
+        return time;
+    }
+
+    private static String getNameOfMonth(int month){
+        String nameOfMonth = null;
+        switch (month) {
+            case 1:
+                nameOfMonth = "January";
+                break;
+            case 2:
+                nameOfMonth = "February";
+                break;
+            case 3:
+                nameOfMonth = "March";
+                break;
+            case 4:
+                nameOfMonth = "April";
+                break;
+            case 5:
+                nameOfMonth = "May";
+                break;
+            case 6:
+                nameOfMonth = "June";
+                break;
+            case 7:
+                nameOfMonth = "July";
+                break;
+            case 8:
+                nameOfMonth = "August";
+                break;
+            case 9:
+                nameOfMonth = "September";
+                break;
+            case 10:
+                nameOfMonth = "October";
+                break;
+            case 11:
+                nameOfMonth = "November";
+                break;
+            case 12:
+                nameOfMonth = "December";
+                break;
+            default:
+                Log.d(TAG, "Invalid value for month");
+                break;
+        }
+        return nameOfMonth;
+    }
+
 }

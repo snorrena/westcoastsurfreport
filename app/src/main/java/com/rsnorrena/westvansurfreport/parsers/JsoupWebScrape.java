@@ -116,7 +116,7 @@ public class JsoupWebScrape {
                 String numericTime = titleDataHeaderTokens[5].substring(1, titleDataHeaderTokens[5].length());
                 time = setReportTime(numericTime + " " + titleDataHeaderTokens[6]);
                 Log.d(TAG, "Record time: " + time);
-                String dateToParse = titleDataHeaderTokens[9];
+                String dateToParse = titleDataHeaderTokens[11];
                 String[] dateElements = dateToParse.split("/");
                 int month = Integer.valueOf(dateElements[0]);
                 nameOfMonth = getNameOfMonth(month);

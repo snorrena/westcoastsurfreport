@@ -17,11 +17,16 @@ import com.rsnorrena.westvansurfreport.model.RssData;
 import com.rsnorrena.westvansurfreport.parsers.JsoupWebScrape;
 import com.rsnorrena.westvansurfreport.parsers.RssXMLParser;
 
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import static java.lang.Thread.sleep;
 
@@ -45,7 +50,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     String winddirectiondegrees;
 
     //two xml data sources used in the app for wind forecast and Halibut Bank live data.
-    String[] datasource = {"https://www.ndbc.noaa.gov/data/latest_obs/46146.rss", "https://weather.gc.ca/rss/marine/14300_e.xml"};
+    String[] datasource = {"https://www.ndbc.noaa.gov/data/latest_obs/46146.rss", "https://weather.gc.ca/rss/marine/14300_e.xml", "https://www.ndbc.noaa.gov/station_page.php?station=46146"};
 
     Context context;//context variable declaration to hold the contect passed into the onReceive method
 
@@ -142,12 +147,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         @Override
         protected String[] doInBackground(String... params) {//method receives a string array containing the two uri sources
             //then returns a string array with two data items consisting of the two xml files downloaded from the internet
-            String[] content = new String[2];//this array hold the two xml files
+            String[] content = new String[3];//this array hold the two xml files
 
-            for (int i = 0; i < content.length; i++) {//loop to pass in each of the two uri's under params
+            for (int i = 0; i <= 1; i++) {//loop to pass in each of the two uri's under params
                 //and save the returned xml data files into the content string array.
                 content[i] = HttpManager.getData(params[i]);//call the the getData method in the HttpManager class
             }
+            content[2] = HttpManager.getDocument(params[2]);
 
             return content;//sent the content array to the post execute method
         }
@@ -161,8 +167,26 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             //call to the parseFeed method in the class RssXMLParser passing in the downloaded xml file array
             //result = content String array passed from the doinbackground method
-            RssData halibutBankData = RssXMLParser.parseFeed(result, 0);
-            RssData windData = RssXMLParser.parseFeed(result, 1);
+            RssData halibutBankData = null;
+            try {
+                halibutBankData = RssXMLParser.parseFeed(result, 2, new RssData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            RssData windData = null;
+            try {
+                windData = RssXMLParser.parseFeed(result, 1, new RssData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
 
             //add some sort of data check in here to validate the files to be saved in memory.
 
