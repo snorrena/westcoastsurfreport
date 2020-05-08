@@ -192,9 +192,34 @@ public class RssXMLParser {
                 String[] titleDataHeaderTokens = titleData.toString().split(" ");
                 Log.d(TAG, "Title token data");
                 Log.d(TAG, "----------------");
+
+              String numericTimeToken = null;
+              String amPm = null;
+              String dateToParse = null;
+
               for (int i = 0; i < titleDataHeaderTokens.length; i++) {
                     Log.d(TAG, "Token " + i + ": " + titleDataHeaderTokens[i]);
+                  if(titleDataHeaderTokens[i].contains("(")){
+                      numericTimeToken = titleDataHeaderTokens[i];
+                      amPm = titleDataHeaderTokens[i + 1];
+                  }
+                  if(titleDataHeaderTokens[i].contains("/")){
+                      dateToParse = titleDataHeaderTokens[i];
+                  }
                 }
+
+              String numericTime = numericTimeToken.substring(1, numericTimeToken.length());
+              time = setReportTime(numericTime + " " + amPm);
+              Log.d(TAG, "Record time: " + time);
+
+              String[] dateElements = dateToParse.split("/");
+              int month = Integer.valueOf(dateElements[0]);
+              nameOfMonth = getNameOfMonth(month);
+              Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
+
+              date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
+              Log.d(TAG, "Date: " + date);
+
                 Log.d(TAG, "Current report: Table data");
                 Log.d(TAG, "--------------------------");
               for (int i = 0; i < currentReportRows.size(); i++) {
@@ -224,17 +249,6 @@ public class RssXMLParser {
                     }
 
                 }
-
-                String numericTime = titleDataHeaderTokens[5].substring(1, titleDataHeaderTokens[5].length());
-                time = setReportTime(numericTime + " " + titleDataHeaderTokens[6]);
-                Log.d(TAG, "Record time: " + time);
-                String dateToParse = titleDataHeaderTokens[11];
-                String[] dateElements = dateToParse.split("/");
-                int month = Integer.valueOf(dateElements[0]);
-                nameOfMonth = getNameOfMonth(month);
-                Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
-                date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
-                Log.d(TAG, "Date: " + date);
 
                rssData.setDate(date);
                rssData.setTime(time);

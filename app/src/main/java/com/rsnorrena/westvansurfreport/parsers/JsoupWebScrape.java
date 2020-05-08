@@ -70,6 +70,8 @@ public class JsoupWebScrape {
                 String winddirectiondegrees = null;
                 String nameOfMonth = null;
 
+                recordKey = setRecordKey(6);//set the record key for the current report
+
                 //get the current report
                 Element currentReport = doc.getElementById("data");
                 Element currentReportTable = currentReport.select("table").get(0);
@@ -78,12 +80,38 @@ public class JsoupWebScrape {
                 Element titleDataHeader = currentReport.getElementsByClass("titleDataHeader").get(0);
                 String titleData = RssXMLParser.html2text(titleDataHeader.toString());//clean out the html tags
                 Log.d(TAG, "TitleDataHeader");
-                Log.d(TAG, titleData.toString());
+                Log.d(TAG, titleData);
+
+
                 String[] titleDataHeaderTokens = titleData.toString().split(" ");
                 Log.d(TAG, "Title token data");
+
+                String numericTimeToken = null;
+                String amPm = null;
+                String dateToParse = null;
+
                 for(int i = 0; i < titleDataHeaderTokens.length; i++){
                     Log.d(TAG, "index: " + i + ": " + titleDataHeaderTokens[i]);
+                    if(titleDataHeaderTokens[i].contains("(")){
+                        numericTimeToken = titleDataHeaderTokens[i];
+                        amPm = titleDataHeaderTokens[i + 1];
+                    }
+                    if(titleDataHeaderTokens[i].contains("/")){
+                        dateToParse = titleDataHeaderTokens[i];
+                    }
                 }
+
+               String numericTime = numericTimeToken.substring(1, numericTimeToken.length());
+                time = setReportTime(numericTime + " " + amPm);
+                Log.d(TAG, "Record time: " + time);
+
+                String[] dateElements = dateToParse.split("/");
+                int month = Integer.valueOf(dateElements[0]);
+                nameOfMonth = getNameOfMonth(month);
+                Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
+
+                date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
+                Log.d(TAG, "Date: " + date);
 
                 for(int i = 0; i < currentReportRows.size(); i++){
                     Element row = currentReportRows.get(i);
@@ -111,18 +139,6 @@ public class JsoupWebScrape {
                     }
 
                 }
-
-                recordKey = setRecordKey(6);//set the record key for the current report
-                String numericTime = titleDataHeaderTokens[5].substring(1, titleDataHeaderTokens[5].length());
-                time = setReportTime(numericTime + " " + titleDataHeaderTokens[6]);
-                Log.d(TAG, "Record time: " + time);
-                String dateToParse = titleDataHeaderTokens[11];
-                String[] dateElements = dateToParse.split("/");
-                int month = Integer.valueOf(dateElements[0]);
-                nameOfMonth = getNameOfMonth(month);
-                Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
-                date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
-                Log.d(TAG, "Date: " + date);
 
                 //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
                 ArrayList<String> currentdatafeed = new ArrayList<String>();
