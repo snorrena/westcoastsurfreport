@@ -1,6 +1,5 @@
 package com.rsnorrena.westvansurfreport;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -12,11 +11,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-//import android.support.v7.view.ContextThemeWrapper;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.ContextThemeWrapper;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,20 +32,17 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+//import android.support.v7.view.ContextThemeWrapper;
+
 public class MainActivity extends AppCompatActivity {
 
     //initialization of class variables (highlighted purple)
     private ToggleButton tb;
-    private Button wf, cam, stop;
 
     //tag to be used in logs
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private String date;
-    private String time;
-    private String winddirection;
-    private String windspeed;
-    private String waveheight;
     private String waveinterval;
     private String winddirectiondegrees;
 
@@ -130,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
 
         //instantiates the buttons on the display
         tb = (ToggleButton) findViewById(R.id.toggleButton);
-        wf = (Button) findViewById(R.id.bwindforecast);
-        cam = (Button) findViewById(R.id.bcam);
-        stop = (Button) findViewById(R.id.bcleardata);
+        Button wf = (Button) findViewById(R.id.bwindforecast);
+        Button cam = (Button) findViewById(R.id.bcam);
+        Button stop = (Button) findViewById(R.id.bcleardata);
 
         //sets the alpha on the buttons to show through to the background image
         wf.getBackground().setAlpha(64);
@@ -1438,10 +1433,10 @@ public class MainActivity extends AppCompatActivity {
         List<String> rssdata = tinydb.getList(a);
 
         date = rssdata.get(0);
-        time = rssdata.get(1);
-        winddirection = rssdata.get(2);
-        windspeed = rssdata.get(3);
-        waveheight = rssdata.get(4);
+        String time = rssdata.get(1);
+        String winddirection = rssdata.get(2);
+        String windspeed = rssdata.get(3);
+        String waveheight = rssdata.get(4);
         waveinterval = rssdata.get(5);
         winddirectiondegrees = rssdata.get(6);
 
