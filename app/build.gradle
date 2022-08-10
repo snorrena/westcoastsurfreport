@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.rsnorrena.westvansurfreport"
         minSdk 29
-        targetSdkVersion 32
+        targetSdk 33
         versionCode 24
         versionName '24'
     }
