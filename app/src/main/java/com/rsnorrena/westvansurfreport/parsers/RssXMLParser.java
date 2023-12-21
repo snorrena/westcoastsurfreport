@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class RssXMLParser {
-
     private static final String TAG = RssXMLParser.class.getSimpleName();
 
     public static RssData parseFeed(String[] content, int index, RssData rssdata) throws IOException, SAXException, ParserConfigurationException {
@@ -56,7 +55,6 @@ public class RssXMLParser {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new StringReader(content));
-
             int eventType = parser.getEventType();
             //the XmlPullParser generates events, start tag, end tag, text, attributes
             //in this example we only care about the start tags end tags and text events
@@ -187,18 +185,13 @@ public class RssXMLParser {
 
                 Element titleDataHeader = currentReport.getElementsByClass("titleDataHeader").get(0);
                 String titleData = RssXMLParser.html2text(titleDataHeader.toString());//clean out the html tags
-                Log.d(TAG, "Current report: TitleDataHeader");
-                Log.d(TAG, titleData.toString());
                 String[] titleDataHeaderTokens = titleData.toString().split(" ");
-                Log.d(TAG, "Title token data");
-                Log.d(TAG, "----------------");
 
               String numericTimeToken = null;
               String amPm = null;
               String dateToParse = null;
 
               for (int i = 0; i < titleDataHeaderTokens.length; i++) {
-                    Log.d(TAG, "Token " + i + ": " + titleDataHeaderTokens[i]);
                   if(titleDataHeaderTokens[i].contains("(")){
                       numericTimeToken = titleDataHeaderTokens[i];
                       amPm = titleDataHeaderTokens[i + 1];
@@ -210,25 +203,19 @@ public class RssXMLParser {
 
               String numericTime = numericTimeToken.substring(1, numericTimeToken.length());
               time = setReportTime(numericTime + " " + amPm);
-              Log.d(TAG, "Record time: " + time);
 
               String[] dateElements = dateToParse.split("/");
               int month = Integer.valueOf(dateElements[0]);
               nameOfMonth = getNameOfMonth(month);
-              Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
 
               date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
-              Log.d(TAG, "Date: " + date);
 
-                Log.d(TAG, "Current report: Table data");
-                Log.d(TAG, "--------------------------");
               for (int i = 0; i < currentReportRows.size(); i++) {
                     Element row = currentReportRows.get(i);
                     Elements cols = row.select("td");
                     String cleanedRow = RssXMLParser.html2text(cols.toString());//clean out the html tags
                     String[] tokens = cleanedRow.split(" ");
                     //iterate through current data in table rows
-                    Log.d(TAG, "Row index: " + i);
                     if (i == 1) {
                         winddirection = tokens[3];
                         winddirectiondegrees = tokens[5];
@@ -244,7 +231,6 @@ public class RssXMLParser {
                     }
                     for (int j = 0; j < tokens.length; j++) {
                         String item = tokens[j];
-                        Log.d(TAG, ":  Token " + j + ": " + item);
                     }
 
                 }
