@@ -18,6 +18,9 @@ android {
     productFlavors {
     }
     namespace 'com.google.android.vending.licensing'
+    buildFeatures {
+        aidl true
+    }
 }
 
 dependencies {

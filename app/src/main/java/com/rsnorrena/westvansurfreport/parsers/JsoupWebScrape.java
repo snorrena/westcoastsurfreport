@@ -12,11 +12,11 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
 public class JsoupWebScrape {
-
     private static final String TAG = JsoupWebScrape.class.getSimpleName();
     Context context;
     TinyDB tb;
@@ -73,69 +73,67 @@ public class JsoupWebScrape {
                 recordKey = setRecordKey(6);//set the record key for the current report
 
                 //get the current report
-                Element currentReport = doc.getElementById("data");
-                Element currentReportTable = currentReport.select("table").get(0);
+                Element currentReport = doc.getElementById("wxdata");
+                Element currentReportTable = currentReport.getElementsByClass("currentobs").get(0);
                 Elements currentReportRows = currentReportTable.select("tr");
 
-                Element titleDataHeader = currentReport.getElementsByClass("titleDataHeader").get(0);
+                Element titleDataHeader = currentReportTable.getElementsByClass("titleDataHeader").get(0);
                 String titleData = RssXMLParser.html2text(titleDataHeader.toString());//clean out the html tags
-                Log.d(TAG, "TitleDataHeader");
-                Log.d(TAG, titleData);
-
+                Log.d(TAG, "extract date and time of the current report");
 
                 String[] titleDataHeaderTokens = titleData.toString().split(" ");
-                Log.d(TAG, "Title token data");
 
                 String numericTimeToken = null;
                 String amPm = null;
                 String dateToParse = null;
 
-                for(int i = 0; i < titleDataHeaderTokens.length; i++){
-                    Log.d(TAG, "index: " + i + ": " + titleDataHeaderTokens[i]);
-                    if(titleDataHeaderTokens[i].contains("(")){
+                for (int i = 0; i < titleDataHeaderTokens.length; i++) {
+                    if (titleDataHeaderTokens[i].contains("(")) {
                         numericTimeToken = titleDataHeaderTokens[i];
                         amPm = titleDataHeaderTokens[i + 1];
                     }
-                    if(titleDataHeaderTokens[i].contains("/")){
+                    if (titleDataHeaderTokens[i].contains("/")) {
                         dateToParse = titleDataHeaderTokens[i];
                     }
                 }
 
-               String numericTime = numericTimeToken.substring(1, numericTimeToken.length());
+                String numericTime = numericTimeToken.substring(1, numericTimeToken.length());
                 time = setReportTime(numericTime + " " + amPm);
-                Log.d(TAG, "Record time: " + time);
 
                 String[] dateElements = dateToParse.split("/");
                 int month = Integer.valueOf(dateElements[0]);
                 nameOfMonth = getNameOfMonth(month);
-                Log.d(TAG, "Month int: " + month + ", Month name: " + nameOfMonth);
 
                 date = nameOfMonth + " " + dateElements[0] + ", " + dateElements[2].substring(0, (dateElements[2].length() - 1));
-                Log.d(TAG, "Date: " + date);
 
-                for(int i = 0; i < currentReportRows.size(); i++){
+                for (int i = 1; i < currentReportRows.size(); i++) {
                     Element row = currentReportRows.get(i);
                     Elements cols = row.select("td");
-                    String cleanedRow = RssXMLParser.html2text(cols.toString());//clean out the html tags
-                    String demilms = "[ ]";
-                    String[] tokens = cleanedRow.split(demilms);
-                    //iterate through current data in table rows
-                    Log.d(TAG, "Row index: " + i);
-                    if(i == 1){
-                        winddirection = tokens[3];
-                        winddirectiondegrees = tokens[5];
+                    String reportData = "";
+                    Log.d("cols size: ", String.valueOf(cols.size()));
+                    if (cols.size() > 1) {
+                        reportData = RssXMLParser.html2text(cols.get(1).toString());//clean out the html tags
+                        Log.d("index: ", String.valueOf(i));
+                        Log.d("reportData:", reportData);
                     }
-                    if(i == 2){
-                        windspeed = tokens[3];
+
+                    if (i == 1) {
+                        int openBracket = reportData.indexOf("(");
+                        winddirection = reportData.substring(0, openBracket).trim();
+                        Log.d("winddirection:", winddirection);
+                        winddirectiondegrees = getWindDirectionInDegrees(winddirection);
                     }
-                    if(i==4){
-                        waveheight = tokens[3];
+                    if (i == 2) {
+                        windspeed = reportData.split(" ")[0];
+                        Log.d("windspeed", windspeed);
                     }
-                    if(i==5){
-                        waveinterval = tokens[4];
+                    if (i == 4) {
+                        waveheight = reportData.split(" ")[0];
+                        Log.d("waveheight", waveheight);
                     }
-                    for(String item: tokens) {
-                        Log.d(TAG, item);
+                    if (i == 5) {
+                        waveinterval = reportData.split(" ")[0];
+                        Log.d("waveinterval: ", waveinterval);
                     }
 
                 }
@@ -153,77 +151,81 @@ public class JsoupWebScrape {
                 currentdatafeed.addAll(itemstoadd);
 
                 tb.putList(recordKey, currentdatafeed);
-
+                Log.d("record key", recordKey);
+                Log.d("currentdatafeed", currentdatafeed.toString());
                 currentdatafeed.clear();
                 itemstoadd.clear();
 
+                Log.d(TAG, "start collection of past data records");
+                int recordNumber = 5;//number of records to be scrapped and populated in the database. Skips the first two tr.
 
-                int recordNumber = 7;//number of records to be scrapped and populated in the database. Skips the first two tr.
+                Element table = doc.getElementsByClass("dataTable").get(0);
 
-                for (Element table : doc.select("table.dataTable")) {//main loop to go through the source web page
+                Element tbody = table.select("tbody").get(0);
 
-                    for (Element row : table.select("tr")) {//start of inner for range loop to go through the table data
+                for (Element row : tbody.select("tr")) {//start of inner for range loop to go through the table data
 
-                        Elements tds = row.select("td");
+                    Elements tds = row.select("td");
+                    Elements th = row.select("th");
 
-                        if (recordNumber <= 5 && recordNumber >= 1) {//on process data in table rows 1 - 5 descending.
+                    if (recordNumber <= 5 && recordNumber >= 1) {//on process data in table rows 1 - 5 descending.
 
-                            String cleanedRow = RssXMLParser.html2text(tds.toString());//clean out the html tags
-                            String demilms = "[ ]";
-                            String[] tokens = cleanedRow.split(demilms);
+                        //report data & time
+                        String cleanedDate = RssXMLParser.html2text(th.toString());//clean out the html tags
+                        Log.d("cleaneDate", cleanedDate);
+                        String[] dateToken = cleanedDate.split(" ");
+                        Log.d("dateToken", Arrays.toString(dateToken));
+                        String[] dateTokenElements = dateToken[0].split("-");
+                        Log.d("dateTokenElements:", Arrays.toString(dateTokenElements) );
+                        month = Integer.valueOf(dateTokenElements[1]);// index 0 element in the token array is the month.
+                        nameOfMonth = getNameOfMonth(month);
+                        time = setReportTime(dateToken[1] + " " + dateToken[2]);//change to 24 hour clock
+                        int year = Integer.valueOf(dateTokenElements[0]);
+                        date = nameOfMonth + " " + dateTokenElements[1] + ", " + year;
 
-                            month = Integer.valueOf(tokens[0]);// index 0 element in the token array is the month.
+                        //report data
+                        String cleanedRow = RssXMLParser.html2text(tds.toString());//clean out the html tags
+                        Log.d("cleanedRow:", cleanedRow);
+                        String[] tokens = cleanedRow.split(" ");
 
-                             nameOfMonth = getNameOfMonth(month);
+                        String windDirection = tokens[0];//index 3 in the token array represents the wind direction.
+                        winddirectiondegrees = getWindDirectionInDegrees(windDirection);
+                        windspeed = tokens[1];
+                        waveheight = tokens[3];
+                        waveinterval = tokens[4];
 
-                            String windDirection = tokens[3];//index 3 in the token array represents the wind direction.
-                            winddirectiondegrees = getWindDirectionInDegrees(windDirection);
+                        //check if the wave height information is accurate
+                        String checkedWaveHeight = waveheight.replaceAll("[^0-9.]", "");
+                        if (checkedWaveHeight.equals("")) {
+                            waveheight = "0";
+                            waveinterval = "0";
+                        }
 
-                            time = setReportTime(tokens[2]);
+                        //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
+                        currentdatafeed.clear();
+                        itemstoadd.clear();
+                        itemstoadd.add(date);
+                        itemstoadd.add(time);
+                        itemstoadd.add(winddirection);
+                        itemstoadd.add(windspeed);
+                        itemstoadd.add(waveheight);
+                        itemstoadd.add(waveinterval);
+                        itemstoadd.add(winddirectiondegrees);
+                        currentdatafeed.addAll(itemstoadd);
 
-                            Calendar cal;//used to get the year
-                            cal = Calendar.getInstance();
-                            cal.setTimeInMillis(System.currentTimeMillis());
-                            int year = cal.get(Calendar.YEAR);
+                        recordKey = setRecordKey(recordNumber);
 
-                            date = nameOfMonth + " " + tokens[2] + ", " + year;
-                            winddirection = tokens[3];
-                            windspeed = tokens[4];
-                            waveheight = tokens[6];
-                            waveinterval = tokens[7];
+                        tb.putList(recordKey, currentdatafeed);
+                        Log.d("currnedatafeed:", currentdatafeed.toString());
 
-                            //check if the wave height information is accurate
-                            String checkedWaveHeight = waveheight.replaceAll("[^0-9.]", "");
-                            if (checkedWaveHeight.equals("")) {
-                                waveheight = "0";
-                                waveinterval = "0";
-                            }
+                        currentdatafeed.clear();
 
-                            //the Halibut bank data items are added to a string array then then the contents of that array are added to yet another array
-                            currentdatafeed.clear();
-                            itemstoadd.clear();
-                            itemstoadd.add(date);
-                            itemstoadd.add(time);
-                            itemstoadd.add(winddirection);
-                            itemstoadd.add(windspeed);
-                            itemstoadd.add(waveheight);
-                            itemstoadd.add(waveinterval);
-                            itemstoadd.add(winddirectiondegrees);
-                            currentdatafeed.addAll(itemstoadd);
+                    }//end of if statement
+                    --recordNumber;
 
-                            recordKey = setRecordKey(recordNumber);
+                }//end of the inner for range loop going through the table data.
 
-                            tb.putList(recordKey, currentdatafeed);
-
-                            currentdatafeed.clear();
-
-                        }//end of if statement
-                        --recordNumber;
-
-                    }//end of the inner for range loop going through the table data.
-                }//end of for range loop through full doc
-
-                tb.putInt("recordssaved", 6);//for 5 records scrapped from the web.
+                tb.putInt("recordssaved", 6);//for 6 records scrapped from the web.
 
                 ArrayList<String> lastRecord = tb.getList("saveddatarecord6");
                 String hourString = lastRecord.get(1);
@@ -419,7 +421,7 @@ public class JsoupWebScrape {
         return winddirectiondegrees;
     }
 
-    private String getNameOfMonth (int month){
+    private String getNameOfMonth(int month) {
         String nameOfMonth = null;
         switch (month) {
             case 1:

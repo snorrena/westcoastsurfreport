@@ -181,7 +181,7 @@ public class RssXMLParser {
                 String nameOfMonth = null;
 
                 //get the current report
-                Element currentReport = doc.getElementById("data");
+                Element currentReport = doc.getElementById("wxdata");
                 Element currentReportTable = currentReport.select("table").get(0);
                 Elements currentReportRows = currentReportTable.select("tr");
 
@@ -226,8 +226,7 @@ public class RssXMLParser {
                     Element row = currentReportRows.get(i);
                     Elements cols = row.select("td");
                     String cleanedRow = RssXMLParser.html2text(cols.toString());//clean out the html tags
-                    String demilms = "[ ]";
-                    String[] tokens = cleanedRow.split(demilms);
+                    String[] tokens = cleanedRow.split(" ");
                     //iterate through current data in table rows
                     Log.d(TAG, "Row index: " + i);
                     if (i == 1) {

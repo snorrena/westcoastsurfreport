@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdk 33
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '34.0.0'
     defaultConfig {
         applicationId "com.rsnorrena.westvansurfreport"
         minSdk 29
@@ -31,6 +31,6 @@ dependencies {
     implementation files('libs/activation.jar')
     implementation files('libs/mail.jar')
     implementation files('libs/additionnal.jar')
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation project(':lvl_library')
 }

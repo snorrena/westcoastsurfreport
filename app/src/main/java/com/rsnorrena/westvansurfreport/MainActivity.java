@@ -492,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "checkOnReceiveTrigger called");
 
-        boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this, 0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE) != null);
+        boolean androidAlarmSet = (pendingIntent.getBroadcast(MainActivity.this, 0, new Intent("xyz.abc.ALARMUP"), PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE) != null);
 
         if (!androidAlarmSet) {
 
