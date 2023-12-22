@@ -248,7 +248,15 @@ public class RssXMLParser {
 
     private static String setReportTime(String time) {
         String[] hour = time.split(":");
-        int h = Integer.parseInt(hour[0]);//get the hour of time from the token
+
+        String numbericTime = hour[0];
+        //remove the leading zero from the time token
+        if(numbericTime.charAt(0) == '0'){
+            numbericTime = numbericTime.substring(1);
+            time = numbericTime + ":" + hour[1];
+        }
+        Log.d("numericTime:", numbericTime);
+        int h = Integer.parseInt(numbericTime);//get the hour of time from the token
 
         if (time.contains("am") && (h == 12)) {//change to 24 hour clock if time is 12 am.
             time = "00:00 am";
