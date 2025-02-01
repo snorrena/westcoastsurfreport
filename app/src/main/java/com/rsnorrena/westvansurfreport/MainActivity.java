@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         //cancels the Android alarm
         manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//initialize the alarm service
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
-        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         manager.cancel(pendingIntent);
         pendingIntent.cancel();
     }
@@ -505,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
 
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
         alarmIntent.setClass(context, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());

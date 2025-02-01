@@ -69,7 +69,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         //for set of the next alarm
         alarmIntent = new Intent("xyz.abc.ALARMUP");//intent identifier is coded in the android manifest file.
         alarmIntent.setClass(context, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(this.context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(this.context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         cal = Calendar.getInstance();
 
